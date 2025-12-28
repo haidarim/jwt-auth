@@ -1,0 +1,12 @@
+jwt-key.base: base64
+jwt-key.length: 32
+jwt-key-algo: HS256 # HMAC
+
+spring:
+  cloud:
+    vault:
+      kv:
+        enabled: true
+        backend: secret
+        default-context: jwt
+

@@ -1,0 +1,213 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>io.github.haidarim</groupId>
+  <artifactId>orelese-jwt</artifactId>
+  <packaging>jar</packaging>
+  <version>0.0.1</version>
+  <name>orelese-jwt</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <spring-security.version>7.0.2</spring-security.version>
+    <lombok.version>1.18.36</lombok.version>
+    <jakarta.persistence.version>3.2.0</jakarta.persistence.version>
+    <jjwt-api.version>0.13.0</jjwt-api.version>
+    <jjwt-impl.version>0.13.0</jjwt-impl.version>
+    <jjwt-jackson.version>0.13.0</jjwt-jackson.version>
+    <spring-cloud-starter-vault-config.version>3.1.1</spring-cloud-starter-vault-config.version>
+  </properties>
+
+  <!-- ==========================
+            SPRING BOOT PARENT (MANAGES VERSIONS)
+            Provides default versions for Spring Boot dependencies
+       =========================== -->
+  <parent>
+    <!-- Spring Boot Parent POM: manages versions of Spring Boot modules automatically -->
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.5.5</version>
+    <relativePath/> <!-- lookup parent from repository -->
+  </parent>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Spring Security-->
+    <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-web</artifactId>
+        <version>${spring-security.version}</version>
+    </dependency>
+
+    <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-config</artifactId>
+        <version>${spring-security.version}</version>
+    </dependency>
+
+    <!-- lombok -->
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${lombok.version}</version>
+        <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+        <groupId>jakarta.persistence</groupId>
+        <artifactId>jakarta.persistence-api</artifactId>
+        <version>${jakarta.persistence.version}</version>
+    </dependency>
+
+    <!-- Spring Data JPA for repositories -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>jakarta.servlet</groupId>
+        <artifactId>jakarta.servlet-api</artifactId>
+        <scope>provided</scope>
+    </dependency>
+
+    <!--
+        JWT Dependencies
+    -->
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-api</artifactId>
+        <version>${jjwt-api.version}</version>
+    </dependency>
+
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-impl</artifactId>
+        <version>${jjwt-impl.version}</version>
+        <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-jackson</artifactId>
+        <version>${jjwt-jackson.version}</version>
+        <scope>runtime</scope>
+    </dependency>
+    <!-- Dependency to access Vault-->
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-vault-config</artifactId>
+        <version>${spring-cloud-starter-vault-config.version}</version>
+    </dependency>
+  </dependencies>
+
+	<!--Project description START -->
+	<description> description not provided! </description>
+	<!--Project description END -->
+ 
+	<!-- SCM information START -->
+	<scm>
+		<url>https://github.com/haidarim/</url>
+    	<connection>scm:git:git://github.com/haidarim/.git</connection>
+    	<developerConnection>scm:git:ssh://github.com:haidarim/.git</developerConnection>
+  	</scm>
+  	<!-- SCM information END -->
+
+  	<!-- Developers information START -->
+  	<developers>
+    	<developer>
+      		<id>orelease</id>
+      		<name>haidarim</name>
+    	</developer>
+  	</developers>
+  	<!-- Developers information END -->
+
+  	<!-- License information START -->
+  	<licenses>
+    	<license>
+      		<name>Apache License, Version 2.0</name>
+      		<url>https://www.apache.org/licenses/LICENSE-2.0</url>
+      		<distribution>repo</distribution>
+    	</license>
+  	</licenses>
+  	<!-- License information END -->
+	
+	<build>
+    	<plugins>
+        	<plugin>
+          		<groupId>org.sonatype.central</groupId>
+          		<artifactId>central-publishing-maven-plugin</artifactId>
+          		<version>0.8.0</version>
+          		<extensions>true</extensions>
+          		<configuration>
+             		<publishingServerId>central</publishingServerId>
+             		<autoPublish>true</autoPublish>
+             		<waitUntil>published</waitUntil>
+          		</configuration>
+  			</plugin>
+
+      		<!-- Source JAR START -->
+      		<plugin>
+        		<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-source-plugin</artifactId>
+        		<version>3.3.0</version>
+        		<executions>
+          			<execution>
+            			<id>attach-sources</id>
+            			<goals>
+              				<goal>jar</goal>
+            			</goals>
+          			</execution>
+        		</executions>
+      		</plugin>
+      		<!-- Source JAR END -->
+
+      		<!-- Javadoc JAR START -->
+      		<plugin>
+        		<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-javadoc-plugin</artifactId>
+        		<version>3.5.0</version>
+        		<executions>
+          			<execution>
+            			<id>attach-javadocs</id>
+            			<goals>
+              				<goal>jar</goal>
+            			</goals>
+          			</execution>
+        		</executions>
+      		</plugin>
+      		<!-- Javadoc JAR END -->
+
+      		<!-- GPG Signing jar and pom START -->
+      		<plugin>
+        		<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-gpg-plugin</artifactId>
+        		<version>3.1.0</version>
+        		<executions>
+          			<execution>
+            			<id>sign-artifacts</id>
+            			<phase>verify</phase>
+            			<goals>
+              				<goal>sign</goal>
+            			</goals>
+          			</execution>
+        		</executions>
+      		</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>9</source>
+                    <target>9</target>
+                </configuration>
+            </plugin>
+            <!-- GPG Signing jar and pom END -->
+    	</plugins>
+	</build>
+</project>
