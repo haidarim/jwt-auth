@@ -4,7 +4,7 @@
   <groupId>io.github.haidarim</groupId>
   <artifactId>orelese-jwt</artifactId>
   <packaging>jar</packaging>
-  <version>0.0.1</version>
+  <version>1.0.0</version>
   <name>orelese-jwt</name>
   <url>http://maven.apache.org</url>
 
