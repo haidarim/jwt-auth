@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.haidarim</groupId>
   <artifactId>orelese-jwt</artifactId>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
   <version>1.0.0</version>
   <name>orelese-jwt</name>
   <url>http://maven.apache.org</url>
@@ -31,80 +31,13 @@
   </parent>
 
   <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- Spring Security-->
-    <dependency>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-web</artifactId>
-        <version>${spring-security.version}</version>
-    </dependency>
-
-    <dependency>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-config</artifactId>
-        <version>${spring-security.version}</version>
-    </dependency>
-
-    <!-- lombok -->
-    <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-        <version>${lombok.version}</version>
-        <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-        <groupId>jakarta.persistence</groupId>
-        <artifactId>jakarta.persistence-api</artifactId>
-        <version>${jakarta.persistence.version}</version>
-    </dependency>
-
-    <!-- Spring Data JPA for repositories -->
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-data-jpa</artifactId>
-    </dependency>
-
-    <dependency>
-        <groupId>jakarta.servlet</groupId>
-        <artifactId>jakarta.servlet-api</artifactId>
-        <scope>provided</scope>
-    </dependency>
-
-    <!--
-        JWT Dependencies
-    -->
-    <dependency>
-        <groupId>io.jsonwebtoken</groupId>
-        <artifactId>jjwt-api</artifactId>
-        <version>${jjwt-api.version}</version>
-    </dependency>
-
-    <dependency>
-        <groupId>io.jsonwebtoken</groupId>
-        <artifactId>jjwt-impl</artifactId>
-        <version>${jjwt-impl.version}</version>
-        <scope>runtime</scope>
-    </dependency>
-
-    <dependency>
-        <groupId>io.jsonwebtoken</groupId>
-        <artifactId>jjwt-jackson</artifactId>
-        <version>${jjwt-jackson.version}</version>
-        <scope>runtime</scope>
-    </dependency>
-    <!-- Dependency to access Vault-->
-    <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-vault-config</artifactId>
-        <version>${spring-cloud-starter-vault-config.version}</version>
-    </dependency>
+      <!-- lombok -->
+      <dependency>
+          <groupId>org.projectlombok</groupId>
+          <artifactId>lombok</artifactId>
+          <version>${lombok.version}</version>
+          <scope>provided</scope>
+      </dependency>
   </dependencies>
 
 	<!--Project description START -->
@@ -210,4 +143,11 @@
             <!-- GPG Signing jar and pom END -->
     	</plugins>
 	</build>
+
+    <modules>
+        <module>jwt-auth-core</module>
+        <module>jwt-auth-autoconfigure</module>
+        <module>jwt-auth-starter</module>
+        <module>jwt-auth-test</module>
+    </modules>
 </project>
