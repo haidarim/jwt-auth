@@ -3,8 +3,8 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.haidarim</groupId>
   <artifactId>orelese-jwt</artifactId>
-  <packaging>jar</packaging>
-  <version>0.0.1</version>
+  <packaging>pom</packaging>
+  <version>1.0.0</version>
   <name>orelese-jwt</name>
   <url>http://maven.apache.org</url>
 
@@ -16,6 +16,9 @@
     <jjwt-impl.version>0.13.0</jjwt-impl.version>
     <jjwt-jackson.version>0.13.0</jjwt-jackson.version>
     <spring-cloud-starter-vault-config.version>3.1.1</spring-cloud-starter-vault-config.version>
+    <testcontainer-core.version>2.0.2</testcontainer-core.version>
+    <testcontainer-postgresql.version>1.21.3</testcontainer-postgresql.version>
+    <postgresql-jdbc-driver.version>42.6.0</postgresql-jdbc-driver.version>
   </properties>
 
   <!-- ==========================
@@ -26,85 +29,37 @@
     <!-- Spring Boot Parent POM: manages versions of Spring Boot modules automatically -->
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.5</version>
+    <version>4.0.0</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
   <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
+      <!-- lombok -->
+      <dependency>
+          <groupId>org.projectlombok</groupId>
+          <artifactId>lombok</artifactId>
+          <version>${lombok.version}</version>
+          <scope>provided</scope>
+      </dependency>
 
-    <!-- Spring Security-->
-    <dependency>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-web</artifactId>
-        <version>${spring-security.version}</version>
-    </dependency>
+      <!-- Testing dependencies -->
+      <dependency>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>junit-jupiter-api</artifactId>
+          <scope>test</scope>
+      </dependency>
 
-    <dependency>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-config</artifactId>
-        <version>${spring-security.version}</version>
-    </dependency>
+      <dependency>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>junit-jupiter-engine</artifactId>
+          <scope>test</scope>
+      </dependency>
 
-    <!-- lombok -->
-    <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-        <version>${lombok.version}</version>
-        <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-        <groupId>jakarta.persistence</groupId>
-        <artifactId>jakarta.persistence-api</artifactId>
-        <version>${jakarta.persistence.version}</version>
-    </dependency>
-
-    <!-- Spring Data JPA for repositories -->
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-data-jpa</artifactId>
-    </dependency>
-
-    <dependency>
-        <groupId>jakarta.servlet</groupId>
-        <artifactId>jakarta.servlet-api</artifactId>
-        <scope>provided</scope>
-    </dependency>
-
-    <!--
-        JWT Dependencies
-    -->
-    <dependency>
-        <groupId>io.jsonwebtoken</groupId>
-        <artifactId>jjwt-api</artifactId>
-        <version>${jjwt-api.version}</version>
-    </dependency>
-
-    <dependency>
-        <groupId>io.jsonwebtoken</groupId>
-        <artifactId>jjwt-impl</artifactId>
-        <version>${jjwt-impl.version}</version>
-        <scope>runtime</scope>
-    </dependency>
-
-    <dependency>
-        <groupId>io.jsonwebtoken</groupId>
-        <artifactId>jjwt-jackson</artifactId>
-        <version>${jjwt-jackson.version}</version>
-        <scope>runtime</scope>
-    </dependency>
-    <!-- Dependency to access Vault-->
-    <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-vault-config</artifactId>
-        <version>${spring-cloud-starter-vault-config.version}</version>
-    </dependency>
+      <dependency>
+          <groupId>org.mockito</groupId>
+          <artifactId>mockito-junit-jupiter</artifactId>
+          <scope>test</scope>
+      </dependency>
   </dependencies>
 
 	<!--Project description START -->
@@ -210,4 +165,11 @@
             <!-- GPG Signing jar and pom END -->
     	</plugins>
 	</build>
+
+    <modules>
+        <module>jwt-auth-core</module>
+        <module>jwt-auth-autoconfigure</module>
+        <module>jwt-auth-starter</module>
+        <module>jwt-auth-test</module>
+    </modules>
 </project>
