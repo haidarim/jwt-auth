@@ -48,7 +48,7 @@ public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
             subject = jwtService.getSubject(token);
             if (subject != null && SecurityContextHolder.getContext().getAuthentication() == null){
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(subject);
-                if (jwtService.isTokenValid(token, userDetails.getUsername())){
+                if (jwtService.isTokenValid(token, subject)){
                     UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
@@ -63,9 +63,7 @@ public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         }catch (Exception e){
-            // TODO LOG
-            filterChain.doFilter(request, response);
-            return;
+            // TODO: ADD LOGS HERE, DO NOT COMMENT HERE
         }
         filterChain.doFilter(request, response);
     }

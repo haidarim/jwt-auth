@@ -1,12 +1,12 @@
 package io.github.haidarim.api.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
+@Getter
 public class AuthenticationResponse {
     private String token;
 }

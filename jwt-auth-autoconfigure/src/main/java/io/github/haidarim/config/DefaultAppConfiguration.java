@@ -18,14 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @ConditionalOnClass(DefaultSecurityConfiguration.class)
 public class DefaultAppConfiguration {
 
-//    private final UserDetailsRepository userDetailsRepository;
-//
-//    @Bean
-//    @ConditionalOnMissingBean
-//    public UserDetailsService userDetailsService(){
-//        return userDetailsRepository::findByUsername;
-//    }
-
     @Bean
     @ConditionalOnMissingBean
     public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService){

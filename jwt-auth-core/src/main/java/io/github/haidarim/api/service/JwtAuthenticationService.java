@@ -8,6 +8,6 @@ import io.github.haidarim.api.dto.response.AuthenticationResponse;
  *
  */
 public interface JwtAuthenticationService {
-    AuthenticationResponse authenticate(AuthenticationRequest request);
-    AuthenticationResponse register(RegisterRequest request);
+    AuthenticationResponse authenticate(AuthenticationRequest request) throws Exception;
+    AuthenticationResponse register(RegisterRequest request) throws Exception;
 }

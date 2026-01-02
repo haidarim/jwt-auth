@@ -1,2 +1,2 @@
-io.github.haidarim.impl.config.DefaultAppConfiguration
-io.github.haidarim.impl.config.DefaultSecurityConfiguration
+io.github.haidarim.config.DefaultAppConfiguration
+io.github.haidarim.config.DefaultSecurityConfiguration

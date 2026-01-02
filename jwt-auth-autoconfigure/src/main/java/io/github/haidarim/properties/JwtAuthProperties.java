@@ -9,7 +9,7 @@ public class JwtAuthProperties {
     private String header = "Authentication";
     private String bearerPrefix = "Bearer";
     private int bearerBeginIndex = 7;
-    private String[] whiteList = {"api-v0/sign-on", "api-v0/authenticate"};
+    private String[] whiteList = {"/api/v0//api/v0/auth/register", "/api/v0/auth/authenticate"};
 
     public void setBearerPrefix(String bearerPrefix) {
         this.bearerPrefix = bearerPrefix;

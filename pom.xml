@@ -16,6 +16,9 @@
     <jjwt-impl.version>0.13.0</jjwt-impl.version>
     <jjwt-jackson.version>0.13.0</jjwt-jackson.version>
     <spring-cloud-starter-vault-config.version>3.1.1</spring-cloud-starter-vault-config.version>
+    <testcontainer-core.version>2.0.2</testcontainer-core.version>
+    <testcontainer-postgresql.version>1.21.3</testcontainer-postgresql.version>
+    <postgresql-jdbc-driver.version>42.6.0</postgresql-jdbc-driver.version>
   </properties>
 
   <!-- ==========================
@@ -26,7 +29,7 @@
     <!-- Spring Boot Parent POM: manages versions of Spring Boot modules automatically -->
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.5</version>
+    <version>4.0.0</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
@@ -37,6 +40,25 @@
           <artifactId>lombok</artifactId>
           <version>${lombok.version}</version>
           <scope>provided</scope>
+      </dependency>
+
+      <!-- Testing dependencies -->
+      <dependency>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>junit-jupiter-api</artifactId>
+          <scope>test</scope>
+      </dependency>
+
+      <dependency>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>junit-jupiter-engine</artifactId>
+          <scope>test</scope>
+      </dependency>
+
+      <dependency>
+          <groupId>org.mockito</groupId>
+          <artifactId>mockito-junit-jupiter</artifactId>
+          <scope>test</scope>
       </dependency>
   </dependencies>
 

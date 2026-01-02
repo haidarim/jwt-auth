@@ -41,15 +41,15 @@ public class DefaultJwtService implements JwtService {
     }
 
     @Override
-    public String createToken(String username) throws InvalidKeySpecException, NoSuchAlgorithmException {
-        return createToken(new HashMap<>(), username);
+    public String createToken(String subject) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        return createToken(new HashMap<>(), subject);
     }
 
-    public String createToken(Map<String, Object> extraClaims, String username) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    public String createToken(Map<String, Object> extraClaims, String subject) throws InvalidKeySpecException, NoSuchAlgorithmException {
         JwtBuilder jwtBuilder = Jwts
                 .builder()
                 .claims(extraClaims)
-                .subject(username);
+                .subject(subject);
         if(jwtConfig.isCheckExpiration()){
             jwtBuilder
                     .issuedAt(new Date(System.currentTimeMillis()))
@@ -88,16 +88,19 @@ public class DefaultJwtService implements JwtService {
     }
 
     @Override
-    public boolean isTokenValid(String token, String username){
+    public boolean isTokenValid(String token, String providedSubject){
         try {
             String subject = getSubject(token);
-            return jwtConfig.isCheckExpiration() ? (subject.equals(username)) : (subject.equals(username) && isTokenNotExpired(token));
-        }catch (Exception e){
+            return subject.equals(providedSubject) && (!jwtConfig.isCheckExpiration() || isTokenStillValid(token));
+        }catch (ExpiredJwtException e){
+            return false;
+        }
+        catch (Exception e){
             throw new RuntimeException(e);
         }
     }
 
-    public boolean isTokenNotExpired(String token) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        return getClaim(token, Claims::getExpiration).before(new Date());
+    public boolean isTokenStillValid(String token) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        return getClaim(token, Claims::getExpiration).after(new Date());
     }
 }
