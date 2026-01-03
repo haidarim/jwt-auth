@@ -18,7 +18,7 @@
     <spring-cloud-starter-vault-config.version>3.1.1</spring-cloud-starter-vault-config.version>
     <testcontainer-core.version>2.0.2</testcontainer-core.version>
     <testcontainer-postgresql.version>1.21.3</testcontainer-postgresql.version>
-    <postgresql-jdbc-driver.version>42.6.0</postgresql-jdbc-driver.version>
+    <postgresql-jdbc-driver.version>42.6.1</postgresql-jdbc-driver.version>
   </properties>
 
   <!-- ==========================

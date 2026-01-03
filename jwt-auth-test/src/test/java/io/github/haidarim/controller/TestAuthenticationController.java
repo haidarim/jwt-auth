@@ -6,11 +6,10 @@ import io.github.haidarim.api.dto.response.AuthenticationResponse;
 import io.github.haidarim.api.service.JwtAuthenticationService;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v0/auth")
@@ -29,11 +28,16 @@ public class TestAuthenticationController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
+    public ResponseEntity<@NotNull AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         try {
             return ResponseEntity.ok(authenticationService.authenticate(request));
         }catch (Exception e){
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).build();
         }
+    }
+
+    @GetMapping("/get/hello-message")
+    public String getHelloMessage(){
+        return "Hello!";
     }
 }
