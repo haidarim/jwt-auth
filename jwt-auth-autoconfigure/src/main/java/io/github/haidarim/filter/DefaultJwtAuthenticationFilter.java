@@ -17,12 +17,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.FilterChain;
 
 import java.io.IOException;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 @RequiredArgsConstructor
 public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
-
+    private final Logger LOGGER = LoggerFactory.getLogger(DefaultJwtAuthenticationFilter.class);
     private final DefaultJwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final JwtAuthProperties jwtAuthProperties;
@@ -38,17 +39,21 @@ public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
         final String token;
         final String subject;
 
+        LOGGER.info("authenticationHeader: {}", authenticationHeader);
+
         if (isHeaderNotValid(authenticationHeader)){
             filterChain.doFilter(request, response);
             return;
         }
 
-        token = authenticationHeader.substring(jwtAuthProperties.getBearerBeginIndex());
+        token = authenticationHeader.substring(jwtAuthProperties.getBearerPrefix().length());
         try {
             subject = jwtService.getSubject(token);
             if (subject != null && SecurityContextHolder.getContext().getAuthentication() == null){
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(subject);
                 if (jwtService.isTokenValid(token, subject)){
+                    LOGGER.info("token is valid");
+                    LOGGER.info("Authorities: {}", userDetails.getAuthorities());
                     UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
@@ -59,12 +64,15 @@ public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
                     authenticationToken.setDetails(
                             new WebAuthenticationDetailsSource().buildDetails(request)
                     );
+                    LOGGER.info("Updating SecurityContextHolder");
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    LOGGER.info("SecurityContextHolder auth: {}", SecurityContextHolder.getContext().getAuthentication());
                 }
             }
         }catch (Exception e){
-            // TODO: ADD LOGS HERE, DO NOT COMMENT HERE
+            LOGGER.info("Exception during execution of filter: {}", e.getMessage());
         }
+        LOGGER.info("End of filter process for path: {}, token: {}", request.getPathInfo(), token);
         filterChain.doFilter(request, response);
     }
 

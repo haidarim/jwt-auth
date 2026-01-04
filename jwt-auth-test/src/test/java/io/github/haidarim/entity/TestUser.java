@@ -44,7 +44,7 @@ public class TestUser implements UserDetails {
     @Column(name = "EMAIL", nullable = false)
     private String email;
 
-    @Column(name = "UNIQUE_NUM")
+    @Column(name = "UNIQUE_NUM", nullable = false)
     private String uniqueNumber;
 
     @Column(name = "ROLE")
