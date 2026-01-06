@@ -4,6 +4,8 @@ import io.github.haidarim.impl.DefaultJwtAuthenticationFilter;
 import io.github.haidarim.properties.JwtAuthProperties;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -22,7 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 @ConditionalOnClass({DefaultJwtAuthenticationFilter.class, AuthenticationProvider.class})
 public class DefaultSecurityConfiguration {
-
+    private final Logger LOGGER = LoggerFactory.getLogger(DefaultSecurityConfiguration.class);
     private final AuthenticationProvider authenticationProvider;
     private final DefaultJwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthProperties jwtProperties;
@@ -30,6 +32,7 @@ public class DefaultSecurityConfiguration {
     @Bean
     @ConditionalOnMissingBean // to let be customized
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception{
+        LOGGER.info("securityFilterChain");
         http
                 // We are using jwt so Cross-Site Request Forgery protection is not needed
                 .csrf(AbstractHttpConfigurer::disable)

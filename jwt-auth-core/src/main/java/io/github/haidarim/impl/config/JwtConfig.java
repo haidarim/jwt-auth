@@ -2,12 +2,12 @@ package io.github.haidarim.impl.config;
 
 public final class JwtConfig {
 
-    private final String algorithm;
-    private final String hsSecret;
-    private final String rsPrivateKey;
-    private final String rsPublicKey;
-    private final boolean checkExpiration;
-    private final long expirationMillis;
+    private String algorithm;
+    private String hsSecret;
+    private String rsPrivateKey;
+    private String rsPublicKey;
+    private boolean checkExpiration;
+    private long expirationMillis;
 
     public JwtConfig(
             String algorithm,
@@ -47,5 +47,18 @@ public final class JwtConfig {
 
     public long getExpirationMillis() {
         return expirationMillis;
+    }
+
+    public void setAlgorithm(String algorithm){
+        if("HS256".equals(algorithm) || "RSA".equals(algorithm)){
+            this.algorithm = algorithm;
+        }
+        throw new RuntimeException("Invalid algorithm");
+    }
+    public void setCheckExpiration(boolean checkExpiration){
+        this.checkExpiration = checkExpiration;
+    }
+    public void setExpirationMillis(long expirationMillis){
+        this.expirationMillis = expirationMillis;
     }
 }

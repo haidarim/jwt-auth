@@ -1,5 +1,6 @@
 package io.github.haidarim.common;
 
+import io.github.haidarim.api.Role;
 import io.github.haidarim.api.dto.request.AuthenticationRequest;
 import io.github.haidarim.api.dto.request.RegisterRequest;
 import io.github.haidarim.api.dto.response.AuthenticationResponse;
@@ -68,6 +69,7 @@ public class TestAppConfig {
                         .uniqueNumber(request.getUniqueNumber())
                         .salt("DUMMY_VALUE")
                         .build();
+                user.setRole(Role.USER);
                 userRepository.save(user);
                 String token = jwtService.createToken(user.getEmail());
                 return AuthenticationResponse

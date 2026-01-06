@@ -1,6 +1,7 @@
 package io.github.haidarim.common;
 
-import io.github.haidarim.api.service.JwtAuthenticationService;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import io.github.haidarim.config.DefaultSecurityConfiguration;
 import io.github.haidarim.controller.TestAuthenticationController;
 import io.github.haidarim.impl.DefaultJwtAuthenticationFilter;
 import io.github.haidarim.impl.service.DefaultJwtService;
@@ -9,12 +10,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.web.servlet.client.RestTestClient;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.client.MockMvcWebTestClient;
+import org.springframework.web.context.WebApplicationContext;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.security.KeyPair;
@@ -34,9 +36,11 @@ import java.util.Base64;
                 TestAppConfig.class, // To tell spring that scan this class first for beans then the app config
                 DefaultJwtAuthenticationFilter.class,
                 DefaultJwtService.class,
-                JwtAuthProperties.class // Note even @Component will not be auto loaded only AutoConfigure classes are loaded automatically
-        }//,
-//        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+                JwtAuthProperties.class, // Note even @Component will not be auto loaded only AutoConfigure classes are loaded automatically
+                TestAuthenticationController.class,
+                JwtTestHelper.class,
+                DefaultSecurityConfiguration.class
+        }
 )
 @ActiveProfiles("test") // to tell spring to use application-test.yml
 @EnableJpaRepositories(basePackages = "io.github.haidarim.repository")
@@ -50,10 +54,13 @@ public class AbstractJwtTest {
                 .withUsername("test")
                 .withPassword("test");
 
-    protected RestTestClient restClient;
-
     @Autowired
-    protected JwtAuthenticationService jwtAuthenticationService;
+    protected JwtTestHelper testHelper;
+    @Autowired
+    private WebApplicationContext context;
+    protected WebTestClient webTestClient;
+
+
 
     static  {
         postgresContainer.start();
@@ -96,7 +103,14 @@ public class AbstractJwtTest {
 
     @BeforeEach
     public void setup(){
-        restClient = RestTestClient.bindToController(new TestAuthenticationController(jwtAuthenticationService)).build();
+        this.webTestClient =
+                MockMvcWebTestClient // MockMvcWebTestClient uses Servlet filter
+                        .bindToApplicationContext(context)
+                        // route WebTestClient requests through the servlet filter chain
+                        .apply(springSecurity()) // <-- THIS activates the filter chain, OncePerRequest
+                        .configureClient()
+                        .baseUrl("http://localhost")
+                        .build();
+        testHelper.deleteAllTestUsers();
     }
-
 }

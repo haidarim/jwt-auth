@@ -3,51 +3,189 @@ package io.github.haidarim.test.system;
 import io.github.haidarim.api.dto.request.RegisterRequest;
 import io.github.haidarim.api.dto.response.AuthenticationResponse;
 import io.github.haidarim.common.AbstractJwtTest;
-import org.jetbrains.annotations.NotNull;
+import io.github.haidarim.common.JwtTestHelper;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.client.EntityExchangeResult;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.time.Duration;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class JwtAuthenticationSystemTest extends AbstractJwtTest {
+    private final String USERNAME_1 = "u1";
+    private final String USERNAME_2 = "u2";
+    private final String EMAIL_1 = "user1@example.com";
+    private final String EMAIL_2 = "user2@example.com";
+    private final String PASSWORD_1 = "pass1";
+    private final String PASSWORD_2 = "pass2";
+    private final String UNIQUE_NUM_1 = "1001";
+    private final String UNIQUE_NUM_2 = "1002";
 
     @Test
-    public void unauthenticatedUserTest(){
+    public void registerUserSuccessfullyTest(){
+        String token = assertRegisterRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
+        assertTrue(token != null && !token.trim().isEmpty());
 
+        testHelper.assertUserExistence(true, EMAIL_1);
     }
 
     @Test
-    public void registerUserTest(){
-        RegisterRequest request = new RegisterRequest(
-                "u1",
-                "user1@exemple.com",
-                "u1pass",
-                "1001"
+    public void unauthenticatedUserGetsUnauthorizedForProtectedResourceTest(){
+        webTestClient.get()
+                .uri("/api/v0/auth/get/hello-message")
+                .exchange()
+                .expectStatus()
+                .isUnauthorized();
+    }
+
+    @Test
+    public void unregisteredUserAuthenticationFailsTest(){
+        webTestClient.post()
+                .uri("/api/v0/auth/authenticate")
+                .bodyValue(new RegisterRequest(
+                        USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1
+                ))
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
+    }
+
+    @Test
+    public void registeredUserWithValidJwtShouldAccessProtectedResourceTest(){
+        String token = assertRegisterRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
+        String responseMessage = webTestClient.get()
+                .uri("/api/v0/auth/get/hello-message")
+                .header("Authentication", "Bearer " + token)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody();
+
+        assertEquals("Hello!", responseMessage);
+    }
+
+    @Test
+    public void deletedUserWithValidJwtAccessProtectedResourceFailsTest(){
+        String token = assertRegisterRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
+
+        testHelper.removeTestUser(EMAIL_1);
+
+        webTestClient.post()
+                .uri("/api/v0/auth/authenticate")
+                .bodyValue(new RegisterRequest(
+                        USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1
+                ))
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
+
+        webTestClient.get()
+                .uri("/api/v0/auth/get/hello-message")
+                .header("Authentication", "Bearer " + token)
+                .exchange()
+                .expectStatus()
+                .isUnauthorized();
+    }
+
+    @Test
+    public void registeredUserWithExpiredJwtAccessProtectedResourceFailsTest(){
+        testHelper.setJwtTimeoutMillis(3_000L);
+
+        String token = assertRegisterRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
+
+        // Assert: token works initially
+        webTestClient.get()
+                .uri("/api/v0/auth/get/hello-message")
+                .header("Authentication", "Bearer " + token)
+                .exchange()
+                .expectStatus().isOk();
+
+        // Act: wait until token is expired
+        testHelper.sleepUntil(
+                () -> {
+                    try {
+                        return System.currentTimeMillis() >= testHelper.getJwtExpirationTime(token);
+                    } catch (Exception e) {
+                        return true;
+                    }
+                },
+                Duration.ofSeconds(5)
         );
 
-        EntityExchangeResult<@NotNull AuthenticationResponse> response = restClient
-                .post()
-                .uri("/api/v0/auth/register")
-                .body(request)
-                .accept(MediaType.APPLICATION_JSON)
+        // Assert: token no longer works
+        webTestClient.get()
+                .uri("/api/v0/auth/get/hello-message")
+                .header("Authentication", "Bearer " + token)
                 .exchange()
-                .expectBody(AuthenticationResponse.class)
-                .returnResult();
-        assertNotNull(response);
-
-        assertEquals(HttpStatus.OK, response.getStatus());
-
-        String token = response.getResponseBody().getToken();
-
-        // add other path to be authenticated for access
+                .expectStatus().isUnauthorized();
     }
 
     @Test
-    public void nonExistingUserTest(){
+    public void registeredUserRequestsNewJwtSuccessfullyTest() {
+        testHelper.createTestUser(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
 
+        String token = assertAuthenticationRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
+
+        webTestClient.get()
+                .uri("/api/v0/auth/get/hello-message")
+                .header("Authentication", "Bearer " + token)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(String.class)
+                .returnResult()
+                .equals("Hello!");
     }
 
+    @Test
+    public void userJwtShouldBeUniqueTest(){
+        String tokenUser1 = assertRegisterRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
+
+        String tokenUser2 = assertRegisterRequestAndGetToken(USERNAME_2, EMAIL_2, PASSWORD_2, UNIQUE_NUM_2);
+
+        assertNotEquals(tokenUser1, tokenUser2);
+    }
+
+    @Test
+    public void userShouldBeAbleToGetJwtUsingAllowedCredentialFormsTest(){
+        testHelper.createTestUser(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
+        assertAuthenticationRequestAndGetToken(null, null, PASSWORD_1, UNIQUE_NUM_1);
+        assertAuthenticationRequestAndGetToken(null, EMAIL_1, PASSWORD_1, null);
+        assertAuthenticationRequestAndGetToken(USERNAME_1, null, PASSWORD_1, null);
+    }
+
+    private String assertRegisterRequestAndGetToken(String username, String email, String password, String uniqueNumber){
+        AuthenticationResponse response = webTestClient.post()
+                .uri("/api/v0/auth/register")
+                .bodyValue(new RegisterRequest(
+                        username, email, password, uniqueNumber
+                ))
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(AuthenticationResponse.class)
+                .returnResult()
+                .getResponseBody();
+        return response.getToken();
+    }
+
+    private String assertAuthenticationRequestAndGetToken(String username, String email, String password, String uniqueNumber){
+        AuthenticationResponse response = webTestClient.post()
+                .uri("/api/v0/auth/authenticate")
+                .bodyValue(new RegisterRequest(
+                        username, email, password, uniqueNumber
+                ))
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(AuthenticationResponse.class)
+                .returnResult()
+                .getResponseBody();
+
+        return response.getToken();
+    }
 }
