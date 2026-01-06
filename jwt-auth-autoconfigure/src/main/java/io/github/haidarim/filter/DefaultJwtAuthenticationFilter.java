@@ -52,7 +52,7 @@ public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
             if (subject != null && SecurityContextHolder.getContext().getAuthentication() == null){
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(subject);
                 if (jwtService.isTokenValid(token, subject)){
-                    LOGGER.info("token is valid");
+                    LOGGER.info("JWT token is valid");
                     LOGGER.info("Authorities: {}", userDetails.getAuthorities());
                     UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
@@ -70,7 +70,7 @@ public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         }catch (Exception e){
-            LOGGER.info("Exception during execution of filter: {}", e.getMessage());
+            LOGGER.error("Exception during execution of filter: {}", e.getMessage());
         }
         LOGGER.info("End of filter process for path: {}, token: {}", request.getPathInfo(), token);
         filterChain.doFilter(request, response);

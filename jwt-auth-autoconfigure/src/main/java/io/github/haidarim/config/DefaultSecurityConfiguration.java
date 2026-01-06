@@ -32,7 +32,7 @@ public class DefaultSecurityConfiguration {
     @Bean
     @ConditionalOnMissingBean // to let be customized
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception{
-        LOGGER.info("securityFilterChain");
+        LOGGER.info("#### SecurityFilterChain ####");
         http
                 // We are using jwt so Cross-Site Request Forgery protection is not needed
                 .csrf(AbstractHttpConfigurer::disable)
