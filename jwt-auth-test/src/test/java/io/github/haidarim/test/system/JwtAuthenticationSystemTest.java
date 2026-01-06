@@ -93,7 +93,7 @@ public class JwtAuthenticationSystemTest extends AbstractJwtTest {
 
     @Test
     public void registeredUserWithExpiredJwtAccessProtectedResourceFailsTest(){
-        testHelper.setJwtTimeoutMillis(1_000L);
+        testHelper.setJwtTimeoutMillis(3_000L);
 
         String token = assertRegisterRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
 
@@ -113,7 +113,7 @@ public class JwtAuthenticationSystemTest extends AbstractJwtTest {
                         return true;
                     }
                 },
-                Duration.ofSeconds(3)
+                Duration.ofSeconds(5)
         );
 
         // Assert: token no longer works
@@ -127,18 +127,8 @@ public class JwtAuthenticationSystemTest extends AbstractJwtTest {
     @Test
     public void registeredUserRequestsNewJwtSuccessfullyTest() {
         testHelper.createTestUser(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
-        AuthenticationResponse response = webTestClient.post()
-                .uri("/api/v0/auth/authenticate")
-                .bodyValue(new RegisterRequest(
-                        USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1
-                ))
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(AuthenticationResponse.class)
-                .returnResult()
-                .getResponseBody();
 
-        String token = response.getToken();
+        String token = assertAuthenticationRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
 
         webTestClient.get()
                 .uri("/api/v0/auth/get/hello-message")
@@ -162,12 +152,10 @@ public class JwtAuthenticationSystemTest extends AbstractJwtTest {
 
     @Test
     public void userShouldBeAbleToGetJwtUsingAllowedCredentialFormsTest(){
-
-    }
-
-    @Test
-    public void userAuthenticationWithInvalidPasswordFailsTest(){
-
+        testHelper.createTestUser(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
+        assertAuthenticationRequestAndGetToken(null, null, PASSWORD_1, UNIQUE_NUM_1);
+        assertAuthenticationRequestAndGetToken(null, EMAIL_1, PASSWORD_1, null);
+        assertAuthenticationRequestAndGetToken(USERNAME_1, null, PASSWORD_1, null);
     }
 
     private String assertRegisterRequestAndGetToken(String username, String email, String password, String uniqueNumber){
@@ -182,6 +170,22 @@ public class JwtAuthenticationSystemTest extends AbstractJwtTest {
                 .expectBody(AuthenticationResponse.class)
                 .returnResult()
                 .getResponseBody();
+        return response.getToken();
+    }
+
+    private String assertAuthenticationRequestAndGetToken(String username, String email, String password, String uniqueNumber){
+        AuthenticationResponse response = webTestClient.post()
+                .uri("/api/v0/auth/authenticate")
+                .bodyValue(new RegisterRequest(
+                        username, email, password, uniqueNumber
+                ))
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(AuthenticationResponse.class)
+                .returnResult()
+                .getResponseBody();
+
         return response.getToken();
     }
 }
