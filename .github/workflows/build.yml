@@ -3,7 +3,7 @@ name: BUILD
 on:
   push:
   pull_request:
-
+  workflow_dispatch:
 jobs: 
   build:
     uses: haidarim/ci-templates/.github/workflows/java-build-ci.yml@v0.1
