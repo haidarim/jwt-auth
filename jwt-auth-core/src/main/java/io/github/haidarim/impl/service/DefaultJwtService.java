@@ -17,9 +17,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DefaultJwtService implements JwtService {
-
+    private final Logger LOGGER = LoggerFactory.getLogger(DefaultJwtService.class);
     private final JwtConfig jwtConfig;
 
     private final String HS = "HS";
@@ -96,6 +98,7 @@ public class DefaultJwtService implements JwtService {
             return false;
         }
         catch (Exception e){
+            LOGGER.error("Exception during token validation: {}", e.getMessage());
             throw new RuntimeException(e);
         }
     }
