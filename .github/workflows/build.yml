@@ -4,8 +4,9 @@ on:
   push:
   pull_request:
 
-jobs:
+jobs: 
   build:
+    name: BUILD PIPE
     uses: haidarim/ci-templates/.github/workflows/java-build-ci.yml@v1
     with:
         java-version: "21"
