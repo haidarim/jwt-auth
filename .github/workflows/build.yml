@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 jobs: 
   build:
-    uses: haidarim/ci-templates/.github/workflows/java-build-ci.yml@v1.0.2
+    uses: haidarim/ci-templates/.github/workflows/java-build-ci.yml@v1.0.3
     with:
         java-version: "21"
 
