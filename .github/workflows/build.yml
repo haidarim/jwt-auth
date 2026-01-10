@@ -5,13 +5,9 @@ on:
   pull_request:
   workflow_dispatch:
 jobs: 
-  build:
-    steps:
-      - uses: action/checkout@v4 # checkout this repo 
-
-      - name: Call ci-template workflow 
-        uses: haidarim/ci-templates/.github/workflows/java-build-ci.yml@v1.0.3
-        with:
-          java-version: "21"
+  build: 
+    uses: haidarim/ci-templates/.github/workflows/java-build-ci.yml@v1.0.4
+    with:
+      java-version: "21"
 
 
