@@ -7,7 +7,7 @@ on:
 jobs: 
   build:
     name: BUILD PIPE
-    uses: haidarim/ci-templates/.github/workflows/java-build-ci.yml@v1
+    uses: haidarim/ci-templates/.github/workflows/java-build-ci.yml@v0.1
     with:
         java-version: "21"
 
