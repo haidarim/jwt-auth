@@ -4,4 +4,12 @@
 **/*.iml/**
 **/out/**
 *.tmp
+*.temp
+**/.vscode
+
+
+*.key
+*.pem
+*.jks
+*.bak
 

@@ -33,6 +33,43 @@
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
+  <profiles>
+	  <profile>
+	      <id>release</id>
+		  <build>
+		      <plugins>
+			      <!-- GPG Signing jar and pom START -->
+      		      <plugin>
+        		      <groupId>org.apache.maven.plugins</groupId>
+        		      <artifactId>maven-gpg-plugin</artifactId>
+        		      <version>3.1.0</version>
+        		      <executions>
+          			      <execution>
+            			      <id>sign-artifacts</id>
+            			      <phase>verify</phase>
+            			      <goals>
+              			          <goal>sign</goal>
+            			      </goals>
+          			      </execution>
+        		      </executions>
+      		     </plugin>
+            	 <!-- GPG Signing jar and pom END -->
+			      <plugin>
+          		      <groupId>org.sonatype.central</groupId>
+          			  <artifactId>central-publishing-maven-plugin</artifactId>
+          		      <version>0.8.0</version>
+          		      <extensions>true</extensions>
+          		      <configuration>
+             		      <publishingServerId>central</publishingServerId>
+             		      <autoPublish>true</autoPublish>
+             		      <waitUntil>published</waitUntil>
+          		      </configuration>
+  			      </plugin>
+			  </plugins>
+		  </build>
+	  </profile>
+  </profiles>
+
   <dependencies>
       <!-- lombok -->
       <dependency>
@@ -99,18 +136,6 @@
 	
 	<build>
     	<plugins>
-        	<plugin>
-          		<groupId>org.sonatype.central</groupId>
-          		<artifactId>central-publishing-maven-plugin</artifactId>
-          		<version>0.8.0</version>
-          		<extensions>true</extensions>
-          		<configuration>
-             		<publishingServerId>central</publishingServerId>
-             		<autoPublish>true</autoPublish>
-             		<waitUntil>published</waitUntil>
-          		</configuration>
-  			</plugin>
-
       		<!-- Source JAR START -->
       		<plugin>
         		<groupId>org.apache.maven.plugins</groupId>
@@ -142,31 +167,14 @@
         		</executions>
       		</plugin>
       		<!-- Javadoc JAR END -->
-
-      		<!-- GPG Signing jar and pom START -->
-      		<plugin>
-        		<groupId>org.apache.maven.plugins</groupId>
-        		<artifactId>maven-gpg-plugin</artifactId>
-        		<version>3.1.0</version>
-        		<executions>
-          			<execution>
-            			<id>sign-artifacts</id>
-            			<phase>verify</phase>
-            			<goals>
-              				<goal>sign</goal>
-            			</goals>
-          			</execution>
-        		</executions>
-      		</plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
+			<plugin>
+                   <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <source>9</source>
                     <target>9</target>
                 </configuration>
             </plugin>
-            <!-- GPG Signing jar and pom END -->
     	</plugins>
 	</build>
 
