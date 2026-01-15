@@ -1,4 +1,4 @@
-name: BUILD
+name: CI
 
 on:
   push:
@@ -10,4 +10,6 @@ jobs:
     with:
       java-version: "21"
 
-
+  test:
+    needs: build
+    uses: haidarim/ci-templates/.github/workflows/java-test-ci.yml@v1.1
