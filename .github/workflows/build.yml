@@ -4,7 +4,6 @@ on:
   push:
   pull_request:
   workflow_dispatch:
-    workflow_dispatch:
     inputs:
       java-version:
         description: Java version
