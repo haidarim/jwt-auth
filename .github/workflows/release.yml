@@ -1,0 +1,16 @@
+name: RELEASE CI
+
+on:
+  workflow_dispatch:
+jobs: 
+  release: 
+    uses: haidarim/ci-templates/.github/workflows/java-release.yml@v1.1.3
+    with:
+      java-version: "21"
+    secrets: 
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      MAVEN_SETTINGS_XML: ${{ secrets.MAVEN_SETTINGS_XML }}
+      SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+      SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+

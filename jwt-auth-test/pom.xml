@@ -10,7 +10,8 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>jwt-auth-test</artifactId>
-
+    <name>JWT Auth Test</name>
+    <description>Core JWT authentication test</description>
     <dependencies>
         <!-- Spring Data JPA for repositories -->
         <dependency>

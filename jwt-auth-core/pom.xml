@@ -10,6 +10,8 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>jwt-auth-core</artifactId>
+    <name>JWT Auth Core</name>
+    <description>Core JWT authentication Core</description>
     <dependencies>
         <!--
         ::: JWT Dependencies

@@ -10,6 +10,9 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>jwt-auth-autoconfigure</artifactId>
+    
+    <name>JWT Auth Auto Configuration</name>
+    <description>Core JWT authentication autoconfiguration</description>
 
     <dependencies>
 
