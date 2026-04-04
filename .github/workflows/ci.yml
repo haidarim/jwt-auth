@@ -6,19 +6,19 @@ on:
   workflow_dispatch:
 jobs: 
   build: 
-    uses: haidarim/ci-templates/.github/workflows/java-build-ci.yml@v1.1.5
+    uses: haidarim/ci-templates/.github/workflows/java-build-ci.yml@v1.1.6
     with:
       java-version: "21"
 
   test:
     needs: build
-    uses: haidarim/ci-templates/.github/workflows/java-test-ci.yml@v1.1.5
+    uses: haidarim/ci-templates/.github/workflows/java-test-ci.yml@v1.1.6
     with:
       java-version: "21"
 
   java-doc:
     needs: build
-    uses: haidarim/ci-templates/.github/workflows/java-jdoc-ci.yml@v1.1.5
+    uses: haidarim/ci-templates/.github/workflows/java-jdoc-ci.yml@v1.1.6
     with:
       java-version: "21"
 
