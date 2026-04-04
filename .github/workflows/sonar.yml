@@ -10,7 +10,7 @@ jobs:
       java-version: "21"
     secrets: 
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      project-key: ${{ github.repository_owner }}_${{ github.event.repository.name }}
-      organization: ${{ github.repository_owner }}
+      project-key: "jwt-auth"
+      organization: "haidarim"
       
 
