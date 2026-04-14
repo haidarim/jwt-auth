@@ -3,7 +3,7 @@ name: RELEASE CI
 on:
   workflow_dispatch:
 jobs: 
-  release: 
+  RELEASE: 
     uses: haidarim/ci-templates/.github/workflows/java-release.yml@v1.1.9
     with:
       java-version: "21"

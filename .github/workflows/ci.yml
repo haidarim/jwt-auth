@@ -5,18 +5,18 @@ on:
   pull_request:
   workflow_dispatch:
 jobs: 
-  build: 
+  BUILD: 
     uses: haidarim/ci-templates/.github/workflows/java-build-ci.yml@v1.1.9
     with:
       java-version: "21"
 
-  test:
+  TEST:
     needs: build
     uses: haidarim/ci-templates/.github/workflows/java-test-ci.yml@v1.1.9
     with:
       java-version: "21"
 
-  java-doc:
+  JAVA-DOC:
     needs: build
     uses: haidarim/ci-templates/.github/workflows/java-jdoc-ci.yml@v1.1.9
     with:

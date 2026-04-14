@@ -4,7 +4,7 @@ on:
   push:
   pull_request:
 jobs: 
-  release: 
+  SONAR: 
     uses: haidarim/ci-templates/.github/workflows/java-sonar-ci.yml@v1.1.9
     with:
       java-version: "21"
