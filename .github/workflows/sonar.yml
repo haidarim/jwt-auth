@@ -5,7 +5,7 @@ on:
   pull_request:
 jobs: 
   release: 
-    uses: haidarim/ci-templates/.github/workflows/java-sonar-ci.yml@v1.1.8
+    uses: haidarim/ci-templates/.github/workflows/java-sonar-ci.yml@v1.1.9
     with:
       java-version: "21"
       project-key: "jwt-auth"
