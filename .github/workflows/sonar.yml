@@ -8,9 +8,9 @@ jobs:
     uses: haidarim/ci-templates/.github/workflows/java-sonar-ci.yml@v1.1.8
     with:
       java-version: "21"
+      project-key: "jwt-auth"
+      organization: "orelease"
     secrets: 
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      project-key: "jwt-auth"
-      organization: "haidarim"
       
 
