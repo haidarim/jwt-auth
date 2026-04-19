@@ -14,4 +14,8 @@
  * All other uses require explicit written permission from the author.
  */
 
+
+/**
+ * Request Dto for JWT
+ */
 package io.github.haidarim.api.dto.request;

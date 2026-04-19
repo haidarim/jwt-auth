@@ -13,5 +13,7 @@
  *
  * All other uses require explicit written permission from the author.
  */
-
+/**
+ * Default Configurations
+ */
 package io.github.haidarim.config;

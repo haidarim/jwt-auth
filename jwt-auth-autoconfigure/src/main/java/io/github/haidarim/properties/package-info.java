@@ -14,4 +14,7 @@
  * All other uses require explicit written permission from the author.
  */
 
+/**
+ * JWT properties used by the application
+ */
 package io.github.haidarim.properties;

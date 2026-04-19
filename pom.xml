@@ -164,10 +164,6 @@
                             <!-- fail build if missing Javadoc -->
                             <failOnError>true</failOnError>
                             <failOnWarnings>true</failOnWarnings>
-                <excludePackageNames>
-                    *Test*.java,
-                    *.package-info.java
-                </excludePackageNames>
                         </configuration>
 			<executions>
           			<execution>

@@ -14,4 +14,7 @@
  * All other uses require explicit written permission from the author.
  */
 
+/**
+ * Implementation of configuration used by JWT
+ */
 package io.github.haidarim.impl.config;

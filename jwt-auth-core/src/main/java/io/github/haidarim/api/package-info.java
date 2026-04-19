@@ -14,4 +14,7 @@
  * All other uses require explicit written permission from the author.
  */
 
+/**
+ * Configuration APIs for JWT
+ */
 package io.github.haidarim.api;
