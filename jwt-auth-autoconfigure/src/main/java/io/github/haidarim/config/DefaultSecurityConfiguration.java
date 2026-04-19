@@ -18,7 +18,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-
+/**
+ * DefaultSecurityConfiguration
+ * provides {@link SecurityFilterChain}
+ */
 @AutoConfiguration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -29,6 +32,12 @@ public class DefaultSecurityConfiguration {
     private final DefaultJwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthProperties jwtProperties;
 
+    /**
+     * default {@link SecurityFilterChain}
+     * @param http {@link HttpSecurity}
+     * @return securityFilterChain {@link SecurityFilterChain}
+     * @throws Exception if any validation fails
+     */
     @Bean
     @ConditionalOnMissingBean // to let be customized
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception{

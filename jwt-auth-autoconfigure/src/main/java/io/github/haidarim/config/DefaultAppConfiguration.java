@@ -13,11 +13,23 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+/**
+ * DefaultAppConfiguration,
+ * provides:
+ * {@link AuthenticationProvider}
+ * {@link AuthenticationManager}
+ * {@link PasswordEncoder}
+ */
 @AutoConfiguration
 @RequiredArgsConstructor
 @ConditionalOnClass(DefaultSecurityConfiguration.class)
 public class DefaultAppConfiguration {
 
+    /**
+     * Default AuthenticationProvider bean
+     * @param userDetailsService UserDetailsService
+     * @return authenticationProvider {@link AuthenticationProvider}
+     */
     @Bean
     @ConditionalOnMissingBean
     public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService){
@@ -26,12 +38,21 @@ public class DefaultAppConfiguration {
         return authenticationProvider;
     }
 
+    /**
+     * Default AuthenticationManager bean
+     * @param configuration {@link AuthenticationConfiguration}
+     * @return authenticationManager {@link AuthenticationManager}
+     */
     @Bean
     @ConditionalOnMissingBean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration){
         return configuration.getAuthenticationManager();
     }
 
+    /**
+     * Default PasswordEncoder
+     * @return passwordEncoder {@link PasswordEncoder}
+     */
     @Bean
     @ConditionalOnMissingBean
     public PasswordEncoder passwordEncoder(){

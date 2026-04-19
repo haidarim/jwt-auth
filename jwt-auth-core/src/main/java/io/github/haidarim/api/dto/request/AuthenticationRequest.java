@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * AuthenticationRequest
+ */
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

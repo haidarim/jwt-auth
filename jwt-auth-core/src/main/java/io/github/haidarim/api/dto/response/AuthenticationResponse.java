@@ -2,6 +2,9 @@ package io.github.haidarim.api.dto.response;
 
 import lombok.*;
 
+/**
+ * AuthenticationResponse
+ */
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

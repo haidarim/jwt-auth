@@ -80,10 +80,6 @@ public class TestAppConfig {
         };
     }
 
-//    @Bean
-//    public JwtService jwtService(JwtConfig jwtConfig){
-//        return new DefaultJwtService(jwtConfig);
-//    }
 
     @Bean
     public JwtConfig jwtConfig(
