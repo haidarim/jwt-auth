@@ -1,4 +1,6 @@
-/*
+#!/bin/bash
+
+HEADER='/*
  * Copyright (c) 2026 haidarim
  * All rights reserved.
  *
@@ -12,9 +14,12 @@
  * repository via pull requests.
  *
  * All other uses require explicit written permission from the author.
- */
+ */'
 
-package io.github.haidarim.test.system;
-
-public class JwtLifecycleSystemTest {
-}
+find . -name "*.java" | while read -r file; do
+  tmp=$(mktemp)
+  echo "$HEADER" > "$tmp"
+  echo "" >> "$tmp"
+  cat "$file" >> "$tmp"
+  mv "$tmp" "$file"
+done
