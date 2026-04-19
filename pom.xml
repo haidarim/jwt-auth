@@ -4,7 +4,7 @@
   <groupId>io.github.haidarim</groupId>
   <artifactId>orelese-jwt</artifactId>
   <packaging>pom</packaging>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <name>orelese-jwt</name>
   <url>http://maven.apache.org</url>
 
@@ -19,6 +19,9 @@
     <testcontainer-core.version>2.0.2</testcontainer-core.version>
     <testcontainer-postgresql.version>1.21.3</testcontainer-postgresql.version>
     <postgresql-jdbc-driver.version>42.6.1</postgresql-jdbc-driver.version>
+    
+    <sonar.projectKey>haidarim_jwt-auth</sonar.projectKey>
+    <sonar.organization>haidarim</sonar.organization>
   </properties>
 
   <!-- ==========================
@@ -179,7 +182,14 @@
                     <source>9</source>
                     <target>9</target>
                 </configuration>
-            </plugin>
+	</plugin>
+	<plugin>
+      <groupId>org.sonarsource.scanner.maven</groupId>
+      <artifactId>sonar-maven-plugin</artifactId>
+      <configuration>
+        <skip>true</skip>
+      </configuration>
+    </plugin>
     	</plugins>
 	</build>
 
