@@ -23,6 +23,9 @@ import lombok.NoArgsConstructor;
 
 /**
  * AuthenticationRequest Dto
+ *
+ * <p>Represents authentication request data including username,
+ *  email, unique identifier, password, and token.</p>
  */
 @Builder
 @NoArgsConstructor
