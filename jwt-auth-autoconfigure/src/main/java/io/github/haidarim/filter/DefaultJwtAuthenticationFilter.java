@@ -16,7 +16,7 @@
 
 package io.github.haidarim.impl;
 
-import io.github.haidarim.impl.service.DefaultJwtService;
+import io.github.haidarim.api.service.JwtService;
 import io.github.haidarim.properties.JwtAuthProperties;
 import jakarta.servlet.ServletException;
 import lombok.NonNull;
@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 @RequiredArgsConstructor
 public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
     private final Logger LOGGER = LoggerFactory.getLogger(DefaultJwtAuthenticationFilter.class);
-    private final DefaultJwtService jwtService;
+    private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final JwtAuthProperties jwtAuthProperties;
 
@@ -68,25 +68,23 @@ public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
         token = authenticationHeader.substring(jwtAuthProperties.getBearerPrefix().length());
         try {
             subject = jwtService.getSubject(token);
-            if (subject != null && SecurityContextHolder.getContext().getAuthentication() == null){
+            if (isTokenValid(subject, token)) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(subject);
-                if (jwtService.isTokenValid(token, subject)){
-                    LOGGER.info("JWT token is valid");
-                    LOGGER.info("Authorities: {}", userDetails.getAuthorities());
-                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    );
+                LOGGER.info("JWT token is valid");
+                LOGGER.info("Authorities: {}", userDetails.getAuthorities());
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
 
-                    // set the request's detail as web auth detail for the token
-                    authenticationToken.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request)
-                    );
-                    LOGGER.info("Updating SecurityContextHolder");
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    LOGGER.info("SecurityContextHolder auth: {}", SecurityContextHolder.getContext().getAuthentication());
-                }
+                // set the request's detail as web auth detail for the token
+                authenticationToken.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request)
+                );
+                LOGGER.info("Updating SecurityContextHolder");
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                LOGGER.info("SecurityContextHolder auth: {}", SecurityContextHolder.getContext().getAuthentication());
             }
         }catch (Exception e){
             LOGGER.error("Exception during execution of filter: {}", e.getMessage());
@@ -97,5 +95,11 @@ public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
 
     private boolean isHeaderNotValid(String authenticationHeader){
         return authenticationHeader == null || !authenticationHeader.startsWith(jwtAuthProperties.getBearerPrefix());
+    }
+
+    private boolean isTokenValid(String subject, String token){
+        return subject != null
+                && SecurityContextHolder.getContext().getAuthentication() == null
+                && jwtService.isTokenValid(token, subject);
     }
 }

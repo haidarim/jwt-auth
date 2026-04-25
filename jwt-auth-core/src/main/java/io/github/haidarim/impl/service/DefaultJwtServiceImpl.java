@@ -39,8 +39,8 @@ import org.slf4j.LoggerFactory;
 /**
  * DefaultJwtService
  */
-public class DefaultJwtService implements JwtService {
-    private final Logger LOGGER = LoggerFactory.getLogger(DefaultJwtService.class);
+public class DefaultJwtServiceImpl implements JwtService {
+    private final Logger LOGGER = LoggerFactory.getLogger(DefaultJwtServiceImpl.class);
     private final JwtConfig jwtConfig;
 
     private final String HS = "HS";
@@ -50,7 +50,7 @@ public class DefaultJwtService implements JwtService {
      * Constructor
      * @param jwtConfig JwtConfig
      */
-    public DefaultJwtService(JwtConfig jwtConfig){
+    public DefaultJwtServiceImpl(JwtConfig jwtConfig){
         this.jwtConfig = jwtConfig;
     }
 
