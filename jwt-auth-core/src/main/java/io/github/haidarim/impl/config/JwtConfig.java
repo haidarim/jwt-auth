@@ -108,6 +108,7 @@ public final class JwtConfig {
     public void setAlgorithm(String algorithm){
         if("HS256".equals(algorithm) || "RSA".equals(algorithm)){
             this.algorithm = algorithm;
+            return;
         }
         throw new RuntimeException("Invalid algorithm");
     }
