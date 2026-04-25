@@ -13,8 +13,7 @@
  *
  * All other uses require explicit written permission from the author.
  */
-
-package io.github.haidarim.test.system;
-
-public class JwtLifecycleSystemTest {
-}
+/**
+ * Auto-core JWT APIs
+ */
+package io.github.haidarim.api.service;

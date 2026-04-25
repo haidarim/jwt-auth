@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2026 haidarim
+ * All rights reserved.
+ *
+ * This software is provided for personal, non-commercial use only.
+ *
+ * Unauthorized copying, modification, redistribution, or use in
+ * commercial products or services is strictly prohibited.
+ *
+ * You may fork and modify this code solely for the purpose of
+ * contributing bug fixes or improvements back to the original
+ * repository via pull requests.
+ *
+ * All other uses require explicit written permission from the author.
+ */
+
 package io.github.haidarim.config;
 
 import io.github.haidarim.impl.DefaultJwtAuthenticationFilter;
@@ -18,7 +34,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-
+/**
+ * DefaultSecurityConfiguration
+ * provides {@link SecurityFilterChain}
+ */
 @AutoConfiguration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -29,6 +48,12 @@ public class DefaultSecurityConfiguration {
     private final DefaultJwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthProperties jwtProperties;
 
+    /**
+     * default {@link SecurityFilterChain}
+     * @param http {@link HttpSecurity}
+     * @return securityFilterChain {@link SecurityFilterChain}
+     * @throws Exception if any validation fails
+     */
     @Bean
     @ConditionalOnMissingBean // to let be customized
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception{

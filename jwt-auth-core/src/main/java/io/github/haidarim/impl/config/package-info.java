@@ -14,7 +14,7 @@
  * All other uses require explicit written permission from the author.
  */
 
-package io.github.haidarim.test.system;
-
-public class JwtLifecycleSystemTest {
-}
+/**
+ * Implementation of configuration used by JWT
+ */
+package io.github.haidarim.impl.config;

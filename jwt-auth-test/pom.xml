@@ -12,6 +12,16 @@
     <artifactId>jwt-auth-test</artifactId>
     <name>JWT Auth Test</name>
     <description>Core JWT authentication test</description>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     <dependencies>
         <!-- Spring Data JPA for repositories -->
         <dependency>

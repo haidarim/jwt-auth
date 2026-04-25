@@ -13,8 +13,7 @@
  *
  * All other uses require explicit written permission from the author.
  */
-
-package io.github.haidarim.test.system;
-
-public class JwtLifecycleSystemTest {
-}
+/**
+ * Default Configurations
+ */
+package io.github.haidarim.config;

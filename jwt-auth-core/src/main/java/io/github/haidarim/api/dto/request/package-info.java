@@ -14,7 +14,8 @@
  * All other uses require explicit written permission from the author.
  */
 
-package io.github.haidarim.test.system;
 
-public class JwtLifecycleSystemTest {
-}
+/**
+ * Request Dto for JWT
+ */
+package io.github.haidarim.api.dto.request;

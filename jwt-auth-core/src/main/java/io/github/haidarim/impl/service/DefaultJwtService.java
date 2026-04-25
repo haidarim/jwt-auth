@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2026 haidarim
+ * All rights reserved.
+ *
+ * This software is provided for personal, non-commercial use only.
+ *
+ * Unauthorized copying, modification, redistribution, or use in
+ * commercial products or services is strictly prohibited.
+ *
+ * You may fork and modify this code solely for the purpose of
+ * contributing bug fixes or improvements back to the original
+ * repository via pull requests.
+ *
+ * All other uses require explicit written permission from the author.
+ */
+
 package io.github.haidarim.impl.service;
 
 import io.jsonwebtoken.*;
@@ -20,6 +36,9 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * DefaultJwtService
+ */
 public class DefaultJwtService implements JwtService {
     private final Logger LOGGER = LoggerFactory.getLogger(DefaultJwtService.class);
     private final JwtConfig jwtConfig;
@@ -27,6 +46,10 @@ public class DefaultJwtService implements JwtService {
     private final String HS = "HS";
     private final String RSA = "RSA";
 
+    /**
+     * Constructor
+     * @param jwtConfig JwtConfig
+     */
     public DefaultJwtService(JwtConfig jwtConfig){
         this.jwtConfig = jwtConfig;
     }
@@ -47,7 +70,15 @@ public class DefaultJwtService implements JwtService {
         return createToken(new HashMap<>(), subject);
     }
 
-    public String createToken(Map<String, Object> extraClaims, String subject) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    /**
+     * Create token
+     * @param extraClaims Map of String and object
+     * @param subject Stirng
+     * @return token String
+     * @throws InvalidKeySpecException if key is invalid
+     * @throws NoSuchAlgorithmException if algorithm is invalid
+     */
+    private String createToken(Map<String, Object> extraClaims, String subject) throws InvalidKeySpecException, NoSuchAlgorithmException {
         JwtBuilder jwtBuilder = Jwts
                 .builder()
                 .claims(extraClaims)
@@ -61,6 +92,13 @@ public class DefaultJwtService implements JwtService {
         return jwtBuilder.compact();
     }
 
+    /**
+     * Get all claims for the given token
+     * @param token String
+     * @return claims Claims
+     * @throws NoSuchAlgorithmException if algorithm is invalid
+     * @throws InvalidKeySpecException if key is invalid
+     */
     private Claims getAllClaims(String token) throws NoSuchAlgorithmException, InvalidKeySpecException {
         JwtParserBuilder parser = Jwts.parser();
         parser = jwtConfig.getAlgorithm().startsWith(HS) ? parser.verifyWith(getSecretKey()) : parser.verifyWith(getPublicKey());
@@ -70,11 +108,21 @@ public class DefaultJwtService implements JwtService {
                 .getPayload();
     }
 
+    /**
+     * Getter method
+     * @return secretKey SecretKey
+     */
     private SecretKey getSecretKey() {
         final byte[] key = Decoders.BASE64.decode(jwtConfig.getHsSecret());
         return Keys.hmacShaKeyFor(key);
     }
 
+    /**
+     * Getter method
+     * @return pubKey PublicKey
+     * @throws NoSuchAlgorithmException if algorithm is invalid
+     * @throws InvalidKeySpecException if key is invalid
+     */
     private PublicKey getPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
         byte[] key = Decoders.BASE64.decode(jwtConfig.getRsPublicKey());
         X509EncodedKeySpec spec = new X509EncodedKeySpec(key);
@@ -82,6 +130,12 @@ public class DefaultJwtService implements JwtService {
         return keyFactory.generatePublic(spec);
     }
 
+    /**
+     * Getter method
+     * @return prKey PrivateKey
+     * @throws InvalidKeySpecException if key is invalid
+     * @throws NoSuchAlgorithmException if algorithm is invalid
+     */
     private PrivateKey getPrivateKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
         byte[] key = Decoders.BASE64.decode(jwtConfig.getRsPrivateKey());
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(key);
@@ -103,6 +157,13 @@ public class DefaultJwtService implements JwtService {
         }
     }
 
+    /**
+     * check if token not expired
+     * @param token String
+     * @return isTokenStillValid boolean
+     * @throws NoSuchAlgorithmException if algorithm is invalid
+     * @throws InvalidKeySpecException if key is invalid
+     */
     public boolean isTokenStillValid(String token) throws NoSuchAlgorithmException, InvalidKeySpecException {
         return getClaim(token, Claims::getExpiration).after(new Date());
     }

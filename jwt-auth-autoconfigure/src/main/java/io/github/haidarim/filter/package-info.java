@@ -14,7 +14,7 @@
  * All other uses require explicit written permission from the author.
  */
 
-package io.github.haidarim.test.system;
-
-public class JwtLifecycleSystemTest {
-}
+/**
+ * Default JWT Filter
+ */
+package io.github.haidarim.filter;
