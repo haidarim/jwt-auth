@@ -13,5 +13,7 @@
  *
  * All other uses require explicit written permission from the author.
  */
-
+/**
+ * Auto-core JWT APIs
+ */
 package io.github.haidarim.api.service;

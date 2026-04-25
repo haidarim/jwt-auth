@@ -22,7 +22,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * AuthenticationRequest
+ * AuthenticationRequest Dto
  */
 @Builder
 @NoArgsConstructor
