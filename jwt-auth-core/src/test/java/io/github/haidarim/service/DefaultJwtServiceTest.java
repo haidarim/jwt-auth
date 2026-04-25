@@ -16,8 +16,9 @@
 
 package io.github.haidarim.service;
 
+import io.github.haidarim.api.service.JwtService;
 import io.github.haidarim.impl.config.JwtConfig;
-import io.github.haidarim.impl.service.DefaultJwtService;
+import io.github.haidarim.impl.service.DefaultJwtServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +37,7 @@ public class DefaultJwtServiceTest {
     @Mock
     private JwtConfig jwtConfig;
 
-    private DefaultJwtService jwtService;
+    private JwtService jwtService;
 
     @BeforeEach
     void setUp(){
@@ -51,7 +52,7 @@ public class DefaultJwtServiceTest {
         when(jwtConfig.isCheckExpiration()).thenReturn(true);
         when(jwtConfig.getExpirationMillis()).thenReturn(3600000L);
 
-        jwtService = new DefaultJwtService(jwtConfig);
+        jwtService = new DefaultJwtServiceImpl(jwtConfig);
     }
 
 
@@ -85,7 +86,7 @@ public class DefaultJwtServiceTest {
     @Test
     void testExpiredToken() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
         when(jwtConfig.getExpirationMillis()).thenReturn(1L);
-        jwtService = new DefaultJwtService(jwtConfig);
+        jwtService = new DefaultJwtServiceImpl(jwtConfig);
 
         String token = jwtService.createToken("test-user");
 
