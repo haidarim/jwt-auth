@@ -20,7 +20,10 @@ For RSA algorithm, token signed with private key during token creation, and the 
 We first verify the token using the key. If it is valid, we decode it and extract the subject. Then we optionally check if that subject corresponds to a valid user in our system.
 The token is validated using the key which will either return a subject or null. then we check if the subject exists then we check whether the token is valid. 
 
+`getSubject()` triggers full token parsing, which internally verifies the signature using the key, and only then extracts and returns the subject from the validated claims.
+
 ![RequestToProtectedPath](./src/main/resources/img/requestToProtectedPath.png)
+
 
 ### Class diagram
 
