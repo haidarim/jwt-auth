@@ -17,10 +17,11 @@
 package io.github.haidarim.common;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+
 import io.github.haidarim.config.DefaultSecurityConfiguration;
 import io.github.haidarim.controller.TestAuthenticationController;
 import io.github.haidarim.impl.DefaultJwtAuthenticationFilter;
-import io.github.haidarim.impl.service.DefaultJwtService;
+import io.github.haidarim.impl.service.DefaultJwtServiceImpl;
 import io.github.haidarim.properties.JwtAuthProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,8 @@ import java.util.Base64;
                 TestAuthApplication.class, // To tell spring boot application
                 TestAppConfig.class, // To tell spring that scan this class first for beans then the app config
                 DefaultJwtAuthenticationFilter.class,
-                DefaultJwtService.class,
+                DefaultJwtServiceImpl.class,
+                TestTokenRevocationServiceImpl.class,
                 JwtAuthProperties.class, // Note even @Component will not be auto loaded only AutoConfigure classes are loaded automatically
                 TestAuthenticationController.class,
                 JwtTestHelper.class,

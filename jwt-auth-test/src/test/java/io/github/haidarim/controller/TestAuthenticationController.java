@@ -20,22 +20,26 @@ import io.github.haidarim.api.dto.request.AuthenticationRequest;
 import io.github.haidarim.api.dto.request.RegisterRequest;
 import io.github.haidarim.api.dto.response.AuthenticationResponse;
 import io.github.haidarim.api.service.JwtAuthenticationService;
+import io.github.haidarim.api.service.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v0/auth")
 @RequiredArgsConstructor
 public class TestAuthenticationController {
-
+    private final String AUTHORIZATION_HEADER = "Authorization";
     private final JwtAuthenticationService authenticationService;
+    private final JwtService jwtService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<@NotNull AuthenticationResponse> register(@RequestBody RegisterRequest request) {
         try {
             return ResponseEntity.ok(authenticationService.register(request));
         }catch (Exception e){
@@ -55,5 +59,33 @@ public class TestAuthenticationController {
     @GetMapping("/get/hello-message")
     public String getHelloMessage(){
         return "Hello!";
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<@NotNull String> logOut(HttpServletRequest request){
+        String authHeader = request.getHeader(AUTHORIZATION_HEADER);
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.badRequest().body("Missing token");
+        }
+
+        String token = authHeader.substring(7);
+        String jti = jwtService.getJti(token);
+        long exp = jwtService.getExpiration(token);
+
+        tokenRevocationService.revokeToken(jti, exp);
+
+        return ResponseEntity.ok("Logged out successfully");
+    }
+
+    @DeleteMapping("/users/me")
+    public ResponseEntity<Void> deleteCurrentUser() {
+        String username = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        userService.deleteUser(username);
+
+        return ResponseEntity.noContent().build();
     }
 }

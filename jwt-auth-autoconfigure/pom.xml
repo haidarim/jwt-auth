@@ -42,7 +42,6 @@
         <dependency>
             <groupId>io.github.haidarim</groupId>
             <artifactId>jwt-auth-core</artifactId>
-            <version>1.0.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

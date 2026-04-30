@@ -24,6 +24,36 @@ The token is validated using the key which will either return a subject or null.
 
 ![RequestToProtectedPath](./src/main/resources/img/requestToProtectedPath.png)
 
+Validation flow: 
+1. Verify signature
+2. Check exp in JWT
+3. Check revocation store (DB/Redis/etc.)
+
+### Token revocation 
+
+Token should be revoked as soon as the token is not valid, e.g. 
+- When user logs out
+- Password change
+- Suspicious activity / admin revoke
+- If refresh token is reused
+
+To keep which tokens are not valid, we need to store them either in memory (DS, Redis) or an entity.  
+
+Also, the blacked list should be cleaned, either
+- A token expires
+- Scheduled clean up. 
+
+This implementation: 
+- Uses a database table, but the service is open and can use even other options. 
+- Has a scheduled cleanup job (the duration is defined in JwtConfig) 
+which clean the entries that those tokens are expired.  
+- Tokens are not stored directly in the DB, rather JTI
+
+
+### Key regeneration and kid after scheduled job is triggered 
+
+A table will keep tracking of last time the key was regenerated, after this all entries in the revokes token that has
+last_time_used  < last_time_key_regen be deleted from revoke entity. 
 
 ### Class diagram
 

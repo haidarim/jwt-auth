@@ -24,7 +24,6 @@ import io.github.haidarim.api.service.JwtAuthenticationService;
 import io.github.haidarim.api.service.JwtService;
 import io.github.haidarim.entity.TestUser;
 import io.github.haidarim.impl.config.JwtConfig;
-import io.github.haidarim.impl.service.DefaultJwtService;
 import io.github.haidarim.repository.TestUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,6 +33,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -68,7 +70,7 @@ public class TestAppConfig {
                 );
 
                 Optional<TestUser> user = Optional.of(userRepository.findByEmail(email));
-                String token = jwtService.createToken(user.get().getEmail());
+                String token = jwtService.createToken(user.get().getEmail(), new HashMap<>());
                 return AuthenticationResponse
                         .builder()
                         .token(token)
@@ -87,7 +89,7 @@ public class TestAppConfig {
                         .build();
                 user.setRole(Role.USER);
                 userRepository.save(user);
-                String token = jwtService.createToken(user.getEmail());
+                String token = jwtService.createToken(user.getEmail(), new HashMap<>());
                 return AuthenticationResponse
                         .builder()
                         .token(token)
@@ -123,5 +125,4 @@ public class TestAppConfig {
             return authentication;
         };
     }
-
 }

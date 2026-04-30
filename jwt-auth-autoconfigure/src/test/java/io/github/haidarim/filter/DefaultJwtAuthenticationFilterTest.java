@@ -16,8 +16,9 @@
 
 package io.github.haidarim.filter;
 
+import io.github.haidarim.api.service.JwtService;
+import io.github.haidarim.api.service.TokenRevocationService;
 import io.github.haidarim.impl.DefaultJwtAuthenticationFilter;
-import io.github.haidarim.impl.service.DefaultJwtService;
 import io.github.haidarim.properties.JwtAuthProperties;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,11 +38,13 @@ import static org.mockito.Mockito.when;
 public class DefaultJwtAuthenticationFilterTest {
 
     @Mock
-    private DefaultJwtService jwtService;
+    private JwtService jwtService;
     @Mock
     private UserDetailsService userDetailsService;
     @Mock
     private JwtAuthProperties jwtAuthProperties;
+    @Mock
+    private TokenRevocationService tokenRevocationService;
     @Mock
     private FilterChain filterChain;
     @Mock
@@ -53,7 +56,7 @@ public class DefaultJwtAuthenticationFilterTest {
 
     @BeforeEach
     void setUp(){
-        filter = new DefaultJwtAuthenticationFilter(jwtService, userDetailsService, jwtAuthProperties);
+        filter = new DefaultJwtAuthenticationFilter(jwtService, userDetailsService, jwtAuthProperties, tokenRevocationService);
     }
 
     @Test

@@ -17,13 +17,14 @@
 package io.github.haidarim.repository;
 
 import io.github.haidarim.entity.TestUser;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TestUserRepository extends JpaRepository<TestUser, Long> {
+public interface TestUserRepository extends JpaRepository<@NotNull TestUser, @NotNull Long> {
 
     @Query("SELECT u FROM TestUser u WHERE u.email = :email")
     TestUser findByEmail(@Param("email") String email);
