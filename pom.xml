@@ -4,7 +4,7 @@
   <groupId>io.github.haidarim</groupId>
   <artifactId>orelese-jwt</artifactId>
   <packaging>pom</packaging>
-  <version>1.0.1</version>
+  <version>2.0.0</version>
   <name>orelese-jwt</name>
   <url>http://maven.apache.org</url>
 
@@ -107,7 +107,7 @@
   </dependencies>
 
 	<!--Project description START -->
-	<description> description not provided! </description>
+	<description> JWT using Spring boot </description>
 	<!--Project description END -->
  
 	<!-- SCM information START -->
