@@ -29,6 +29,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -103,6 +104,8 @@ public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
             LOGGER.debug("Invalid JWT", e);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             LOGGER.warn("Crypto configuration error", e);
+        }catch (UsernameNotFoundException e){
+            LOGGER.warn("User detail not found error", e);
         }
         
         LOGGER.info("End of filter process for path: {}", request.getRequestURI());

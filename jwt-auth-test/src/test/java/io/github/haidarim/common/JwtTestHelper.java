@@ -29,6 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,13 +48,14 @@ public class JwtTestHelper {
 
 
     public void assertUserExistence(boolean shouldExist, String email){
-        assertEquals(shouldExist, userRepository.findByEmail(email) != null);
+        assertEquals(shouldExist, userRepository.findByEmail(email).isPresent());
     }
 
-    public void removeTestUser(String email){
-        TestUser user = userRepository.findByEmail(email);
-        userRepository.delete(user);
-        assertUserExistence(false, user.getEmail());
+    public void removeTestUser(String email) {
+        Optional<TestUser> user = userRepository.findByEmail(email);
+        assertTrue(user.isPresent());
+        userRepository.delete(user.get());
+        assertUserExistence(false, user.get().getEmail());
     }
 
     public void deleteAllTestUsers(){
