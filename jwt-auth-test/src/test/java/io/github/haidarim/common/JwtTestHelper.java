@@ -110,4 +110,8 @@ public class JwtTestHelper {
     public long getJwtExpirationTime(String token) throws NoSuchAlgorithmException, InvalidKeySpecException {
         return jwtService.getClaim(token, Claims::getExpiration).getTime();
     }
+
+    public String getJti(String token) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        return jwtService.getJti(token);
+    }
 }

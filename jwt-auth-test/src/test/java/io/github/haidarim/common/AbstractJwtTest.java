@@ -18,6 +18,7 @@ package io.github.haidarim.common;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
+import io.github.haidarim.api.service.TokenRevocationService;
 import io.github.haidarim.config.DefaultSecurityConfiguration;
 import io.github.haidarim.controller.TestAuthenticationController;
 import io.github.haidarim.impl.DefaultJwtAuthenticationFilter;
@@ -74,6 +75,8 @@ public class AbstractJwtTest {
 
     @Autowired
     protected JwtTestHelper testHelper;
+    @Autowired
+    protected TokenRevocationService tokenRevocationService;
     @Autowired
     private WebApplicationContext context;
     protected WebTestClient webTestClient;
