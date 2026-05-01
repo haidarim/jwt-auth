@@ -19,9 +19,7 @@ package io.github.haidarim.test.system;
 import io.github.haidarim.api.dto.request.RegisterRequest;
 import io.github.haidarim.api.dto.response.AuthenticationResponse;
 import io.github.haidarim.common.AbstractJwtTest;
-import io.github.haidarim.common.JwtTestHelper;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -73,7 +71,7 @@ public class JwtAuthenticationSystemTest extends AbstractJwtTest {
         String token = assertRegisterRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
         String responseMessage = webTestClient.get()
                 .uri("/api/v0/auth/get/hello-message")
-                .header("Authentication", "Bearer " + token)
+                .header("Authorization", "Bearer " + token)
                 .exchange()
                 .expectStatus()
                 .isOk()
@@ -101,7 +99,7 @@ public class JwtAuthenticationSystemTest extends AbstractJwtTest {
 
         webTestClient.get()
                 .uri("/api/v0/auth/get/hello-message")
-                .header("Authentication", "Bearer " + token)
+                .header("Authorization", "Bearer " + token)
                 .exchange()
                 .expectStatus()
                 .isUnauthorized();
@@ -116,7 +114,7 @@ public class JwtAuthenticationSystemTest extends AbstractJwtTest {
         // Assert: token works initially
         webTestClient.get()
                 .uri("/api/v0/auth/get/hello-message")
-                .header("Authentication", "Bearer " + token)
+                .header("Authorization", "Bearer " + token)
                 .exchange()
                 .expectStatus().isOk();
 
@@ -135,7 +133,7 @@ public class JwtAuthenticationSystemTest extends AbstractJwtTest {
         // Assert: token no longer works
         webTestClient.get()
                 .uri("/api/v0/auth/get/hello-message")
-                .header("Authentication", "Bearer " + token)
+                .header("Authorization", "Bearer " + token)
                 .exchange()
                 .expectStatus().isUnauthorized();
     }
@@ -148,7 +146,7 @@ public class JwtAuthenticationSystemTest extends AbstractJwtTest {
 
         webTestClient.get()
                 .uri("/api/v0/auth/get/hello-message")
-                .header("Authentication", "Bearer " + token)
+                .header("Authorization", "Bearer " + token)
                 .exchange()
                 .expectStatus()
                 .isOk()
@@ -172,6 +170,25 @@ public class JwtAuthenticationSystemTest extends AbstractJwtTest {
         assertAuthenticationRequestAndGetToken(null, null, PASSWORD_1, UNIQUE_NUM_1);
         assertAuthenticationRequestAndGetToken(null, EMAIL_1, PASSWORD_1, null);
         assertAuthenticationRequestAndGetToken(USERNAME_1, null, PASSWORD_1, null);
+    }
+
+    @Test
+    public void tokenShouldBeRevokedAfterLogoutTest() throws NoSuchAlgorithmException, InvalidKeySpecException {
+        String token= assertRegisterRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
+        webTestClient
+                .post()
+                .uri("/api/v0/auth/logout")
+                .header("Authorization", "Bearer " + token)
+                .exchange()
+                .expectStatus()
+                .isOk();
+        webTestClient.get()
+                .uri("/api/v0/auth/get/hello-message")
+                .header("Authorization", "Bearer " + token)
+                .exchange()
+                .expectStatus().isUnauthorized();
+        String jti = testHelper.getJti(token);
+        assertTrue(tokenRevocationService.isTokenRevoked(jti));
     }
 
     private String assertRegisterRequestAndGetToken(String username, String email, String password, String uniqueNumber){

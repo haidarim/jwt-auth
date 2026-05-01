@@ -19,6 +19,10 @@ package io.github.haidarim.api.service;
 import io.github.haidarim.api.dto.request.AuthenticationRequest;
 import io.github.haidarim.api.dto.request.RegisterRequest;
 import io.github.haidarim.api.dto.response.AuthenticationResponse;
+import org.springframework.http.ResponseEntity;
+
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
 /**
  * JwtAuthenticationService
@@ -39,4 +43,6 @@ public interface JwtAuthenticationService {
      * @throws Exception if register request fails
      */
     AuthenticationResponse register(RegisterRequest request) throws Exception;
+
+    void revokeToken(String token) throws NoSuchAlgorithmException, InvalidKeySpecException;
 }

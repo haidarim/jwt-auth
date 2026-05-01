@@ -25,7 +25,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties(prefix = "jwt-auth")
 public class JwtAuthProperties {
-    private String header = "Authentication";
+    private String header = "Authorization";
     private String bearerPrefix = "Bearer ";
     private int bearerBeginIndex = 7;
     private String[] whiteList = {"/api/v0/auth/register", "/api/v0/auth/authenticate"};

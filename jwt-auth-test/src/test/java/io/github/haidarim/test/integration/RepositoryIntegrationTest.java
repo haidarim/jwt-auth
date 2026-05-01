@@ -21,7 +21,10 @@ import io.github.haidarim.repository.TestUserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RepositoryIntegrationTest extends AbstractJwtTest {
 
@@ -41,8 +44,8 @@ public class RepositoryIntegrationTest extends AbstractJwtTest {
 
         userRepository.save(user);
 
-        TestUser fetched = userRepository.findByEmail("user@example.com");
-        assertThat(fetched).isNotNull();
-        assertThat(fetched.getUsername()).isEqualTo("user1");
+        Optional<TestUser> fetched = userRepository.findByEmail("user@example.com");
+        assertTrue(fetched.isPresent());
+        assertThat(fetched.get().getUsername()).isEqualTo("user1");
     }
 }

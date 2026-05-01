@@ -22,18 +22,28 @@ import io.github.haidarim.api.dto.request.RegisterRequest;
 import io.github.haidarim.api.dto.response.AuthenticationResponse;
 import io.github.haidarim.api.service.JwtAuthenticationService;
 import io.github.haidarim.api.service.JwtService;
+import io.github.haidarim.api.service.TokenRevocationService;
 import io.github.haidarim.entity.TestUser;
 import io.github.haidarim.impl.config.JwtConfig;
-import io.github.haidarim.impl.service.DefaultJwtService;
 import io.github.haidarim.repository.TestUserRepository;
+import io.github.haidarim.service.TestUserService;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -42,10 +52,12 @@ public class TestAppConfig {
 
     private final TestUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TokenRevocationService tokenRevocationService;
 
     @Bean
     public UserDetailsService userDetailsService(){
-        return userRepository::findByEmail;
+        return email -> userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     @Bean
@@ -54,8 +66,8 @@ public class TestAppConfig {
             @Override
             public AuthenticationResponse authenticate(AuthenticationRequest request) throws Exception{
                 String email = request.getEmail() != null && !request.getEmail().trim().isEmpty()? request.getEmail()
-                        : request.getUsername() != null && !request.getUsername().trim().isEmpty()? userRepository.findEmailByUsername(request.getUsername())
-                        : request.getUniqueNumber() != null && !request.getUniqueNumber().trim().isEmpty()? userRepository.findEmailByUniqueNumber(request.getUniqueNumber())
+                        : request.getUsername() != null && !request.getUsername().trim().isEmpty()? userRepository.findEmailByUsername(request.getUsername()).orElse("")
+                        : request.getUniqueNumber() != null && !request.getUniqueNumber().trim().isEmpty()? userRepository.findEmailByUniqueNumber(request.getUniqueNumber()).orElse("")
                         :"";
                 if (email.isEmpty()){
                     throw new RuntimeException("Email not provided");
@@ -67,8 +79,8 @@ public class TestAppConfig {
                         )
                 );
 
-                Optional<TestUser> user = Optional.of(userRepository.findByEmail(email));
-                String token = jwtService.createToken(user.get().getEmail());
+                Optional<TestUser> user = userRepository.findByEmail(email);
+                String token = jwtService.createToken(user.get().getEmail(), new HashMap<>());
                 return AuthenticationResponse
                         .builder()
                         .token(token)
@@ -77,25 +89,50 @@ public class TestAppConfig {
 
             @Override
             public AuthenticationResponse register(RegisterRequest request) throws Exception {
-                TestUser user = TestUser
-                        .builder()
-                        .username(request.getUsername())
-                        .email(request.getEmail())
-                        .passwordHash(passwordEncoder.encode(request.getPassword()))
-                        .uniqueNumber(request.getUniqueNumber())
-                        .salt("DUMMY_VALUE")
-                        .build();
-                user.setRole(Role.USER);
-                userRepository.save(user);
-                String token = jwtService.createToken(user.getEmail());
+                Optional<TestUser> user = userRepository.findByEmail(request.getEmail());
+                String token = jwtService.createToken(user.get().getEmail(), new HashMap<>());
                 return AuthenticationResponse
                         .builder()
                         .token(token)
                         .build();
             }
+
+            @Override
+            public void revokeToken(String token) throws NoSuchAlgorithmException, InvalidKeySpecException {
+
+                String jti = jwtService.getJti(token);
+                long exp = jwtService.getClaim(token, Claims::getExpiration).getTime();
+
+                tokenRevocationService.revokeToken(jti, exp);
+            }
         };
     }
 
+    @Bean
+    public TestUserService testUserService(){
+        return new TestUserService() {
+            @Override
+            public TestUser createOrUpdateUser(String username, String email, String password, String uniqueNumber, String salt) {
+                TestUser user = TestUser
+                        .builder()
+                        .username(username)
+                        .email(email)
+                        .passwordHash(passwordEncoder.encode(password))
+                        .uniqueNumber(uniqueNumber)
+                        .salt(salt)
+                        .role(Role.USER)
+                        .build();
+                userRepository.save(user);
+                return user;
+            }
+
+            @Override
+            public void deleteUser(String email) {
+                Optional<TestUser> user = userRepository.findByEmail(email);
+                userRepository.delete(user.get());
+            }
+        };
+    }
 
     @Bean
     public JwtConfig jwtConfig(
@@ -123,5 +160,4 @@ public class TestAppConfig {
             return authentication;
         };
     }
-
 }

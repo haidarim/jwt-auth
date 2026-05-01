@@ -17,14 +17,19 @@
 package io.github.haidarim.impl;
 
 import io.github.haidarim.api.service.JwtService;
+import io.github.haidarim.api.service.TokenRevocationService;
 import io.github.haidarim.properties.JwtAuthProperties;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.ServletException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -33,12 +38,16 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.FilterChain;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * DefaultJwtAuthenticationFilter
  */
+@NullMarked
 @Component
 @RequiredArgsConstructor
 public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
@@ -46,32 +55,35 @@ public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final JwtAuthProperties jwtAuthProperties;
-
+    private final TokenRevocationService tokenRevocationService;
 
     @Override
     protected void doFilterInternal(
-            @NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
     ) throws ServletException, IOException {
         final String authenticationHeader = request.getHeader(jwtAuthProperties.getHeader());
         final String token;
         final String subject;
 
-        LOGGER.info("authenticationHeader: {}", authenticationHeader);
-
         if (isHeaderNotValid(authenticationHeader)){
             filterChain.doFilter(request, response);
             return;
         }
+        LOGGER.debug("Authorization header present");
+        token = authenticationHeader.substring(jwtAuthProperties.getBearerPrefix().length()).trim();
 
-        token = authenticationHeader.substring(jwtAuthProperties.getBearerPrefix().length());
+        if (token.isEmpty()){
+            filterChain.doFilter(request, response);
+            return;
+        }
         try {
             subject = jwtService.getSubject(token);
             if (isTokenValid(subject, token)) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(subject);
-                LOGGER.info("JWT token is valid");
-                LOGGER.info("Authorities: {}", userDetails.getAuthorities());
+                LOGGER.debug("JWT token is valid");
+                LOGGER.debug("Authorities: {}", userDetails.getAuthorities());
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
@@ -82,14 +94,21 @@ public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
                 authenticationToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
-                LOGGER.info("Updating SecurityContextHolder");
+                LOGGER.debug("Updating SecurityContextHolder");
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                LOGGER.info("SecurityContextHolder auth: {}", SecurityContextHolder.getContext().getAuthentication());
+                LOGGER.debug("SecurityContextHolder auth: {}", SecurityContextHolder.getContext().getAuthentication());
             }
-        }catch (Exception e){
-            LOGGER.error("Exception during execution of filter: {}", e.getMessage());
+        }catch (ExpiredJwtException e) {
+            LOGGER.debug("Token expired", e);
+        } catch (JwtException e) {
+            LOGGER.debug("Invalid JWT", e);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            LOGGER.warn("Crypto configuration error", e);
+        }catch (UsernameNotFoundException e){
+            LOGGER.warn("User detail not found error", e);
         }
-        LOGGER.info("End of filter process for path: {}, token: {}", request.getPathInfo(), token);
+        
+        LOGGER.info("End of filter process for path: {}", request.getRequestURI());
         filterChain.doFilter(request, response);
     }
 
@@ -97,9 +116,13 @@ public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
         return authenticationHeader == null || !authenticationHeader.startsWith(jwtAuthProperties.getBearerPrefix());
     }
 
-    private boolean isTokenValid(String subject, String token){
-        return subject != null
-                && SecurityContextHolder.getContext().getAuthentication() == null
-                && jwtService.isTokenValid(token, subject);
+    private boolean isTokenValid(String subject, String token) {
+        try{
+            return SecurityContextHolder.getContext().getAuthentication() == null
+                    && jwtService.isTokenValid(token, subject)
+                    && !tokenRevocationService.isTokenRevoked(jwtService.getJti(token));
+        }catch (InvalidKeySpecException | NoSuchAlgorithmException e){
+         return false;
+        }
     }
 }

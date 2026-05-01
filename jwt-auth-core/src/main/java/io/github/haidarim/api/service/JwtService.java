@@ -20,6 +20,7 @@ import io.jsonwebtoken.Claims;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Map;
 import java.util.function.Function;
 
 
@@ -35,7 +36,7 @@ public interface JwtService {
      * @throws NoSuchAlgorithmException if wrong algorithm is given for token creation
      * @throws InvalidKeySpecException if wrong key is given for token creation
      */
-    String createToken(String username) throws NoSuchAlgorithmException, InvalidKeySpecException;
+    String createToken(String username, Map<String, Object> claims) throws NoSuchAlgorithmException, InvalidKeySpecException;
 
     /**
      * Get subject associated with the specified token
@@ -68,4 +69,6 @@ public interface JwtService {
             String token,
             String subject
     );
+
+    String getJti(String token) throws NoSuchAlgorithmException, InvalidKeySpecException;
 }

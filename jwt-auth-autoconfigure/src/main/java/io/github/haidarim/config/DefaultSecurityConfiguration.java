@@ -43,7 +43,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 @ConditionalOnClass({DefaultJwtAuthenticationFilter.class, AuthenticationProvider.class})
 public class DefaultSecurityConfiguration {
-    private final Logger LOGGER = LoggerFactory.getLogger(DefaultSecurityConfiguration.class);
     private final AuthenticationProvider authenticationProvider;
     private final DefaultJwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthProperties jwtProperties;
@@ -52,12 +51,10 @@ public class DefaultSecurityConfiguration {
      * default {@link SecurityFilterChain}
      * @param http {@link HttpSecurity}
      * @return securityFilterChain {@link SecurityFilterChain}
-     * @throws Exception if any validation fails
      */
     @Bean
     @ConditionalOnMissingBean // to let be customized
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception{
-        LOGGER.info("#### SecurityFilterChain ####");
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http){
         http
                 // We are using jwt so Cross-Site Request Forgery protection is not needed
                 .csrf(AbstractHttpConfigurer::disable)

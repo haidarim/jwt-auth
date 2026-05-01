@@ -17,20 +17,24 @@
 package io.github.haidarim.repository;
 
 import io.github.haidarim.entity.TestUser;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.text.html.Option;
+import java.util.Optional;
+
 @Repository
-public interface TestUserRepository extends JpaRepository<TestUser, Long> {
+public interface TestUserRepository extends JpaRepository<@NotNull TestUser, @NotNull Long> {
 
     @Query("SELECT u FROM TestUser u WHERE u.email = :email")
-    TestUser findByEmail(@Param("email") String email);
+    Optional<TestUser> findByEmail(@Param("email") String email);
 
     @Query("SELECT u.email FROM TestUser u WHERE u.username = :username")
-    String findEmailByUsername(@Param("username") String username);
+    Optional<String> findEmailByUsername(@Param("username") String username);
 
     @Query("SELECT u.email FROM TestUser u WHERE u.uniqueNumber = :uniqueNumber")
-    String findEmailByUniqueNumber(@Param("uniqueNumber") String uniqueNumber);
+    Optional<String> findEmailByUniqueNumber(@Param("uniqueNumber") String uniqueNumber);
 }

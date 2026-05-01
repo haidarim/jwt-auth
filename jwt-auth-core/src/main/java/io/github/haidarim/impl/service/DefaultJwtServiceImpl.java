@@ -32,6 +32,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,8 +67,10 @@ public class DefaultJwtServiceImpl implements JwtService {
     }
 
     @Override
-    public String createToken(String subject) throws InvalidKeySpecException, NoSuchAlgorithmException {
-        return createToken(new HashMap<>(), subject);
+    public String createToken(String subject, Map<String, Object> claims) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        String jti = UUID.randomUUID().toString();
+        claims.put("jti", jti);
+        return createToken(claims, subject);
     }
 
     /**
@@ -166,5 +169,10 @@ public class DefaultJwtServiceImpl implements JwtService {
      */
     public boolean isTokenStillValid(String token) throws NoSuchAlgorithmException, InvalidKeySpecException {
         return getClaim(token, Claims::getExpiration).after(new Date());
+    }
+
+    @Override
+    public String getJti(String token) throws NoSuchAlgorithmException, InvalidKeySpecException{
+        return getAllClaims(token).get("jti", String.class);
     }
 }

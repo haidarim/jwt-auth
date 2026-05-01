@@ -193,7 +193,30 @@
     </plugin>
     	</plugins>
 	</build>
-
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.github.haidarim</groupId>
+                <artifactId>jwt-auth-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.haidarim</groupId>
+                <artifactId>jwt-auth-autoconfigure</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.haidarim</groupId>
+                <artifactId>jwt-auth-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.haidarim</groupId>
+                <artifactId>jwt-auth-test</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <modules>
         <module>jwt-auth-core</module>
         <module>jwt-auth-autoconfigure</module>

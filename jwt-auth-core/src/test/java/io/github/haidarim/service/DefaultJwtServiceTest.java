@@ -27,6 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -61,7 +62,7 @@ public class DefaultJwtServiceTest {
         String username = "test-user";
 
         // Create token
-        String token = jwtService.createToken(username);
+        String token = jwtService.createToken(username, new HashMap<>());
         assertNotNull(token, "Token should not be null");
 
         // Verify token validity
@@ -76,7 +77,7 @@ public class DefaultJwtServiceTest {
     @Test
     void testTokenInvalidForDifferentUser() throws InvalidKeySpecException, NoSuchAlgorithmException {
         String username = "test-user";
-        String token = jwtService.createToken(username);
+        String token = jwtService.createToken(username, new HashMap<>());
 
         // Token should be invalid for another username
         boolean valid = jwtService.isTokenValid(token, "other-user");
@@ -88,7 +89,7 @@ public class DefaultJwtServiceTest {
         when(jwtConfig.getExpirationMillis()).thenReturn(1L);
         jwtService = new DefaultJwtServiceImpl(jwtConfig);
 
-        String token = jwtService.createToken("test-user");
+        String token = jwtService.createToken("test-user", new HashMap<>());
 
         Thread.sleep(10);
 
