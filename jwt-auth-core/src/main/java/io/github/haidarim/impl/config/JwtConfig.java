@@ -16,17 +16,26 @@
 
 package io.github.haidarim.impl.config;
 
+import io.github.haidarim.api.JwtAlgorithm;
+
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+
 /**
  * JwtConfig
  */
 public final class JwtConfig {
 
-    private String algorithm;
+    private JwtAlgorithm algorithm;
     private String hsSecret;
     private String rsPrivateKey;
     private String rsPublicKey;
     private boolean checkExpiration;
     private long expirationMillis;
+    private long expirationJwtMargin;
+    private Set<String> allowedIssuers = new HashSet<>();
+    private Set<String> allowedAudiences = new HashSet<>();
 
     /**
      * Constructor
@@ -38,12 +47,13 @@ public final class JwtConfig {
      * @param expirationMillis long
      */
     public JwtConfig(
-            String algorithm,
+            JwtAlgorithm algorithm,
             String hsSecret,
             String rsPrivateKey,
             String rsPublicKey,
             boolean checkExpiration,
-            long expirationMillis
+            long expirationMillis,
+            long expirationJwtMargin
     ) {
         this.algorithm = algorithm;
         this.hsSecret = hsSecret;
@@ -51,13 +61,14 @@ public final class JwtConfig {
         this.rsPublicKey = rsPublicKey;
         this.checkExpiration = checkExpiration;
         this.expirationMillis = expirationMillis;
+        this.expirationJwtMargin = expirationJwtMargin;
     }
 
     /**
      * Getter method
      * @return algorithm String
      */
-    public String getAlgorithm() {
+    public JwtAlgorithm getAlgorithm() {
         return algorithm;
     }
 
@@ -105,12 +116,8 @@ public final class JwtConfig {
      * Setter method
      * @param algorithm String
      */
-    public void setAlgorithm(String algorithm){
-        if("HS256".equals(algorithm) || "RSA".equals(algorithm)){
-            this.algorithm = algorithm;
-            return;
-        }
-        throw new RuntimeException("Invalid algorithm");
+    public void setAlgorithm(JwtAlgorithm algorithm){
+        this.algorithm = Objects.requireNonNull(algorithm);
     }
 
     /**
@@ -127,5 +134,29 @@ public final class JwtConfig {
      */
     public void setExpirationMillis(long expirationMillis){
         this.expirationMillis = expirationMillis;
+    }
+
+    public long getExpirationJwtMargin(){
+        return expirationJwtMargin;
+    }
+
+    public void setExpirationJwtMargin(long expirationJwtMargin){
+        this.expirationJwtMargin = expirationJwtMargin;
+    }
+
+    public void addIssuer(String issuer){
+        this.allowedIssuers.add(issuer);
+    }
+
+    public void addAudience(String audience){
+        this.allowedAudiences.add(audience);
+    }
+
+    public boolean isIssuerValid(String issuer){
+        return allowedIssuers.contains(issuer);
+    }
+
+    public boolean isAudienceValid(String audience){
+        return allowedAudiences.contains(audience);
     }
 }

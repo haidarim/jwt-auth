@@ -18,8 +18,7 @@ package io.github.haidarim.filter;
 
 import io.github.haidarim.api.service.JwtService;
 import io.github.haidarim.api.service.TokenRevocationService;
-import io.github.haidarim.impl.DefaultJwtAuthenticationFilter;
-import io.github.haidarim.properties.JwtAuthProperties;
+import io.github.haidarim.api.JwtAuthProperties;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -56,7 +55,7 @@ public class DefaultJwtAuthenticationFilterTest {
 
     @BeforeEach
     void setUp(){
-        filter = new DefaultJwtAuthenticationFilter(jwtService, userDetailsService, jwtAuthProperties, tokenRevocationService);
+        filter = new DefaultJwtAuthenticationFilter(jwtService, userDetailsService, tokenRevocationService);
     }
 
     @Test
@@ -69,7 +68,6 @@ public class DefaultJwtAuthenticationFilterTest {
     @Test
     void filterWithInvalidAuthenticationHeader() throws Exception{
         when(request.getHeader(any())).thenReturn("BBB");
-        when(jwtAuthProperties.getBearerPrefix()).thenReturn("Bearer");
         filter.doFilter(request, response, filterChain);
         verify(filterChain).doFilter(request, response);
     }

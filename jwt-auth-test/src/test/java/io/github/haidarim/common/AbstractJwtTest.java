@@ -16,14 +16,15 @@
 
 package io.github.haidarim.common;
 
+import static io.github.haidarim.api.JwtAlgorithm.HS256;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 import io.github.haidarim.api.service.TokenRevocationService;
 import io.github.haidarim.config.DefaultSecurityConfiguration;
 import io.github.haidarim.controller.TestAuthenticationController;
-import io.github.haidarim.impl.DefaultJwtAuthenticationFilter;
+import io.github.haidarim.filter.DefaultJwtAuthenticationFilter;
 import io.github.haidarim.impl.service.DefaultJwtServiceImpl;
-import io.github.haidarim.properties.JwtAuthProperties;
+import io.github.haidarim.api.JwtAuthProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
@@ -110,12 +111,13 @@ public class AbstractJwtTest {
     // to avoid having some properties hard-codded in application properties
     @DynamicPropertySource
     static void registerJwtProperties(DynamicPropertyRegistry registry){
-        registry.add("jwt.algorithm", ()-> "HS256");
+        registry.add("jwt.algorithm", ()-> HS256);
         registry.add("jwt.hs_secret", ()-> HS_SECRET);
         registry.add("jwt.pr_secret", ()->base64(RSA_KEYS.getPrivate().getEncoded()));
         registry.add("jwt.pub_secret", ()-> base64(RSA_KEYS.getPublic().getEncoded()));
         registry.add("jwt.check_expiration", ()-> true);
         registry.add("jwt.expiration_time", ()->60000L);
+        registry.add("jwt.expiration_jwt_margin", ()->0L);
     }
 
     private static String base64(byte[] bytes) {

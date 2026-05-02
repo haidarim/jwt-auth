@@ -33,4 +33,6 @@ public class RegisterRequest {
     private String email;
     private String password;
     private String uniqueNumber;
+    private String issuer;
+    private String audience;
 }

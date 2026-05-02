@@ -37,4 +37,6 @@ public class AuthenticationRequest {
     private String uniqueNumber;
     private String password;
     private String token;
+    private String issuer;
+    private String audience;
 }

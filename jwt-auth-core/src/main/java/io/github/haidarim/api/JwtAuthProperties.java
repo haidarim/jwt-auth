@@ -14,7 +14,14 @@
  * All other uses require explicit written permission from the author.
  */
 
+package io.github.haidarim.api;
+
 /**
- * JWT properties used by the application
+ * JwtAuthProperties
  */
-package io.github.haidarim.properties;
+public interface JwtAuthProperties {
+    String AUTHORIZATION_HEADER = "Authorization";
+    String BEARER_PREFIX = "Bearer ";
+    String[] WHITE_LIST = {"/api/v0/auth/register", "/api/v0/auth/authenticate"};
+}
+

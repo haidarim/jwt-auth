@@ -36,11 +36,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Objects;
 
+import static io.github.haidarim.api.JwtAuthProperties.AUTHORIZATION_HEADER;
+import static io.github.haidarim.api.JwtAuthProperties.BEARER_PREFIX;
+
 @RestController
 @RequestMapping("/api/v0/auth")
 @RequiredArgsConstructor
 public class TestAuthenticationController {
-    private final String AUTHORIZATION_HEADER = "Authorization";
     private final JwtAuthenticationService authenticationService;
     private final JwtService jwtService;
     private final TestUserService userService;
@@ -79,7 +81,7 @@ public class TestAuthenticationController {
     public ResponseEntity<@NotNull String> logOut(HttpServletRequest request){
         String authHeader = request.getHeader(AUTHORIZATION_HEADER);
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
             return ResponseEntity.badRequest().body("Missing token");
         }
         try {

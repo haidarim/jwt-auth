@@ -22,20 +22,17 @@ import io.github.haidarim.impl.service.DefaultJwtServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
 
+import static io.github.haidarim.api.JwtAlgorithm.HS256;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
 public class DefaultJwtServiceTest {
 
-    @Mock
     private JwtConfig jwtConfig;
 
     private JwtService jwtService;
@@ -47,12 +44,18 @@ public class DefaultJwtServiceTest {
         for (int i = 0; i < secretBytes.length; i++) secretBytes[i] = (byte) i;
 
         String encodedSecret = java.util.Base64.getEncoder().encodeToString(secretBytes);
-        when(jwtConfig.getHsSecret()).thenReturn(encodedSecret);
+        jwtConfig = new JwtConfig(
+                HS256,
+                encodedSecret,
+                null,
+                null,
+                true,
+                3600000L,
+                0L
+        );
 
-        when(jwtConfig.getAlgorithm()).thenReturn("HS256");
-        when(jwtConfig.isCheckExpiration()).thenReturn(true);
-        when(jwtConfig.getExpirationMillis()).thenReturn(3600000L);
-
+        jwtConfig.addIssuer("orelease.com");
+        jwtConfig.addAudience("test");
         jwtService = new DefaultJwtServiceImpl(jwtConfig);
     }
 
@@ -62,7 +65,7 @@ public class DefaultJwtServiceTest {
         String username = "test-user";
 
         // Create token
-        String token = jwtService.createToken(username, new HashMap<>());
+        String token = jwtService.createToken(username, new HashMap<>(), "orelease.com", "test");
         assertNotNull(token, "Token should not be null");
 
         // Verify token validity
@@ -77,7 +80,7 @@ public class DefaultJwtServiceTest {
     @Test
     void testTokenInvalidForDifferentUser() throws InvalidKeySpecException, NoSuchAlgorithmException {
         String username = "test-user";
-        String token = jwtService.createToken(username, new HashMap<>());
+        String token = jwtService.createToken(username, new HashMap<>(), "orelease.com", "test");
 
         // Token should be invalid for another username
         boolean valid = jwtService.isTokenValid(token, "other-user");
@@ -86,10 +89,10 @@ public class DefaultJwtServiceTest {
 
     @Test
     void testExpiredToken() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
-        when(jwtConfig.getExpirationMillis()).thenReturn(1L);
+        jwtConfig.setExpirationMillis(1L);
         jwtService = new DefaultJwtServiceImpl(jwtConfig);
 
-        String token = jwtService.createToken("test-user", new HashMap<>());
+        String token = jwtService.createToken("test-user", new HashMap<>(), "orelease.com", "test");
 
         Thread.sleep(10);
 

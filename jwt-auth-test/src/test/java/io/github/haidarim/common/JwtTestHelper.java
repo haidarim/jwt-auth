@@ -112,6 +112,6 @@ public class JwtTestHelper {
     }
 
     public String getJti(String token) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        return jwtService.getJti(token);
+        return jwtService.getClaim(token, Claims::getId);
     }
 }
