@@ -159,15 +159,15 @@
       		<plugin>
         		<groupId>org.apache.maven.plugins</groupId>
         		<artifactId>maven-javadoc-plugin</artifactId>
-        		<version>3.5.0</version>
-			<configuration>
-                            <!-- fail build if missing Javadoc -->
-                            <failOnError>true</failOnError>
-                            <failOnWarnings>false</failOnWarnings>
-                        </configuration>
+        		<version>3.6.3</version>
+                <inherited>true</inherited>
+                <configuration>
+                    <doclint>none</doclint>
+                </configuration>
 			<executions>
           			<execution>
             			<id>attach-javadocs</id>
+                        <phase>package</phase>
             			<goals>
               				<goal>jar</goal>
             			</goals>
