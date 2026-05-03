@@ -1,17 +1,11 @@
 /*
- * Copyright (c) 2026 haidarim
+ * Copyright (c) 2026 Haidarim
  * All rights reserved.
  *
- * This software is provided for personal, non-commercial use only.
- *
- * Unauthorized copying, modification, redistribution, or use in
- * commercial products or services is strictly prohibited.
- *
- * You may fork and modify this code solely for the purpose of
- * contributing bug fixes or improvements back to the original
- * repository via pull requests.
- *
- * All other uses require explicit written permission from the author.
+ * This software is proprietary and confidential.
+ * Unauthorized use, copying, modification, or distribution of this
+ * software, in whole or in part, is strictly prohibited without
+ * prior written permission from the author.
  */
 
 package io.github.haidarim.impl.config;
@@ -136,26 +130,52 @@ public final class JwtConfig {
         this.expirationMillis = expirationMillis;
     }
 
+    /**
+     * Get expiration margin
+     * @return margin long
+     */
     public long getExpirationJwtMargin(){
         return expirationJwtMargin;
     }
 
+    /**
+     * Setter for expirationJwtMargin
+     * @param expirationJwtMargin long
+     */
     public void setExpirationJwtMargin(long expirationJwtMargin){
         this.expirationJwtMargin = expirationJwtMargin;
     }
 
+    /**
+     * Add issuer to allowedIssuers
+     * @param issuer String
+     */
     public void addIssuer(String issuer){
         this.allowedIssuers.add(issuer);
     }
 
+    /**
+     * Add audience ti allowedAudiences
+     * @param audience String
+     */
     public void addAudience(String audience){
         this.allowedAudiences.add(audience);
     }
 
+    /**
+     * Checks whether the issuer is valid
+     * @param issuer String
+     * @return isIssuerValid boolean
+     */
     public boolean isIssuerValid(String issuer){
         return allowedIssuers.contains(issuer);
     }
 
+    /**
+     * Checks whether the audience is valid
+     * @param audience String
+     * @return isAudienceValid boolean
+     */
     public boolean isAudienceValid(String audience){
         return allowedAudiences.contains(audience);
     }

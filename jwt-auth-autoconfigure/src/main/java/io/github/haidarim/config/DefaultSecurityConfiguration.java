@@ -1,23 +1,16 @@
 /*
- * Copyright (c) 2026 haidarim
+ * Copyright (c) 2026 Haidarim
  * All rights reserved.
  *
- * This software is provided for personal, non-commercial use only.
- *
- * Unauthorized copying, modification, redistribution, or use in
- * commercial products or services is strictly prohibited.
- *
- * You may fork and modify this code solely for the purpose of
- * contributing bug fixes or improvements back to the original
- * repository via pull requests.
- *
- * All other uses require explicit written permission from the author.
+ * This software is proprietary and confidential.
+ * Unauthorized use, copying, modification, or distribution of this
+ * software, in whole or in part, is strictly prohibited without
+ * prior written permission from the author.
  */
 
 package io.github.haidarim.config;
 
 import io.github.haidarim.filter.DefaultJwtAuthenticationFilter;
-import io.github.haidarim.api.JwtAuthProperties;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;

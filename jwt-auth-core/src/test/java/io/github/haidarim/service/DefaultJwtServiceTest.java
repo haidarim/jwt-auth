@@ -1,17 +1,11 @@
 /*
- * Copyright (c) 2026 haidarim
+ * Copyright (c) 2026 Haidarim
  * All rights reserved.
  *
- * This software is provided for personal, non-commercial use only.
- *
- * Unauthorized copying, modification, redistribution, or use in
- * commercial products or services is strictly prohibited.
- *
- * You may fork and modify this code solely for the purpose of
- * contributing bug fixes or improvements back to the original
- * repository via pull requests.
- *
- * All other uses require explicit written permission from the author.
+ * This software is proprietary and confidential.
+ * Unauthorized use, copying, modification, or distribution of this
+ * software, in whole or in part, is strictly prohibited without
+ * prior written permission from the author.
  */
 
 package io.github.haidarim.service;
@@ -21,8 +15,6 @@ import io.github.haidarim.impl.config.JwtConfig;
 import io.github.haidarim.impl.service.DefaultJwtServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -100,5 +92,26 @@ public class DefaultJwtServiceTest {
         assertFalse(valid, "Token should be expired");
     }
 
+    @Test
+    void validationFailsForInvalidIssuer() throws NoSuchAlgorithmException, InvalidKeySpecException {
+        // Create token
+        String token = jwtService.createToken("test-user", new HashMap<>(), "whatever.com", "test");
+        assertNotNull(token, "Token should not be null");
+
+        // Verify token validity
+        boolean valid = jwtService.isTokenValid(token, "test-user");
+        assertFalse(valid, "Token should be invalid");
+    }
+
+    @Test
+    void validationFailsForInvalidAudience() throws NoSuchAlgorithmException, InvalidKeySpecException {
+        // Create token
+        String token = jwtService.createToken("test-user", new HashMap<>(), "orelease.com", "whatever");
+        assertNotNull(token, "Token should not be null");
+
+        // Verify token validity
+        boolean valid = jwtService.isTokenValid(token, "test-user");
+        assertFalse(valid, "Token should be invalid");
+    }
 
 }

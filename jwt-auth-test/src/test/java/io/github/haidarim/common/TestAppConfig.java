@@ -1,17 +1,11 @@
 /*
- * Copyright (c) 2026 haidarim
+ * Copyright (c) 2026 Haidarim
  * All rights reserved.
  *
- * This software is provided for personal, non-commercial use only.
- *
- * Unauthorized copying, modification, redistribution, or use in
- * commercial products or services is strictly prohibited.
- *
- * You may fork and modify this code solely for the purpose of
- * contributing bug fixes or improvements back to the original
- * repository via pull requests.
- *
- * All other uses require explicit written permission from the author.
+ * This software is proprietary and confidential.
+ * Unauthorized use, copying, modification, or distribution of this
+ * software, in whole or in part, is strictly prohibited without
+ * prior written permission from the author.
  */
 
 package io.github.haidarim.common;
@@ -30,11 +24,9 @@ import io.github.haidarim.repository.TestUserRepository;
 import io.github.haidarim.service.TestUserService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -44,7 +36,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import static io.github.haidarim.common.TestConstants.VALID_AUDIENCE;

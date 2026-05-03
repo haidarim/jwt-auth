@@ -1,17 +1,11 @@
 /*
- * Copyright (c) 2026 haidarim
+ * Copyright (c) 2026 Haidarim
  * All rights reserved.
  *
- * This software is provided for personal, non-commercial use only.
- *
- * Unauthorized copying, modification, redistribution, or use in
- * commercial products or services is strictly prohibited.
- *
- * You may fork and modify this code solely for the purpose of
- * contributing bug fixes or improvements back to the original
- * repository via pull requests.
- *
- * All other uses require explicit written permission from the author.
+ * This software is proprietary and confidential.
+ * Unauthorized use, copying, modification, or distribution of this
+ * software, in whole or in part, is strictly prohibited without
+ * prior written permission from the author.
  */
 
 package io.github.haidarim.filter;
@@ -19,12 +13,9 @@ package io.github.haidarim.filter;
 import io.github.haidarim.api.service.JwtService;
 import io.github.haidarim.api.service.TokenRevocationService;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.ServletException;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -111,10 +102,21 @@ public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    /**
+     * Checks whether the header is valid or not
+     * @param authenticationHeader String
+     * @return isHeaderNotValid boolean
+     */
     private boolean isHeaderNotValid(String authenticationHeader){
         return authenticationHeader == null || !authenticationHeader.startsWith((BEARER_PREFIX));
     }
 
+    /**
+     * Checks whether the token is valid or not
+     * @param claims Claims
+     * @param token String
+     * @return isTokenValid boolean
+     */
     private boolean isTokenValid(Claims claims, String token) {
             return jwtService.isTokenValid(token, claims.getSubject())
                     && !tokenRevocationService.isTokenRevoked(claims.getId());
