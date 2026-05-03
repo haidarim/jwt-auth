@@ -12,6 +12,16 @@
     <artifactId>jwt-auth-core</artifactId>
     <name>JWT Auth Core</name>
     <description>Core JWT authentication Core</description>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     <dependencies>
         <!--
         ::: JWT Dependencies
