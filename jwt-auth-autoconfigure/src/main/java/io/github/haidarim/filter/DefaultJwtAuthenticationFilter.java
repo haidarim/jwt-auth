@@ -1,35 +1,25 @@
 /*
- * Copyright (c) 2026 haidarim
+ * Copyright (c) 2026 Haidarim
  * All rights reserved.
  *
- * This software is provided for personal, non-commercial use only.
- *
- * Unauthorized copying, modification, redistribution, or use in
- * commercial products or services is strictly prohibited.
- *
- * You may fork and modify this code solely for the purpose of
- * contributing bug fixes or improvements back to the original
- * repository via pull requests.
- *
- * All other uses require explicit written permission from the author.
+ * This software is proprietary and confidential.
+ * Unauthorized use, copying, modification, or distribution of this
+ * software, in whole or in part, is strictly prohibited without
+ * prior written permission from the author.
  */
 
-package io.github.haidarim.impl;
+package io.github.haidarim.filter;
 
 import io.github.haidarim.api.service.JwtService;
 import io.github.haidarim.api.service.TokenRevocationService;
-import io.github.haidarim.properties.JwtAuthProperties;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.ServletException;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -38,11 +28,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.FilterChain;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static io.github.haidarim.api.JwtAuthProperties.AUTHORIZATION_HEADER;
+import static io.github.haidarim.api.JwtAuthProperties.BEARER_PREFIX;
 
 /**
  * DefaultJwtAuthenticationFilter
@@ -54,7 +45,6 @@ public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
     private final Logger LOGGER = LoggerFactory.getLogger(DefaultJwtAuthenticationFilter.class);
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-    private final JwtAuthProperties jwtAuthProperties;
     private final TokenRevocationService tokenRevocationService;
 
     @Override
@@ -63,7 +53,7 @@ public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-        final String authenticationHeader = request.getHeader(jwtAuthProperties.getHeader());
+        final String authenticationHeader = request.getHeader(AUTHORIZATION_HEADER);
         final String token;
         final String subject;
 
@@ -72,15 +62,16 @@ public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         LOGGER.debug("Authorization header present");
-        token = authenticationHeader.substring(jwtAuthProperties.getBearerPrefix().length()).trim();
+        token = authenticationHeader.substring(BEARER_PREFIX.length()).trim();
 
         if (token.isEmpty()){
             filterChain.doFilter(request, response);
             return;
         }
         try {
-            subject = jwtService.getSubject(token);
-            if (isTokenValid(subject, token)) {
+            Claims claims = jwtService.getAllClaims(token);
+            subject = claims.getSubject();
+            if (isTokenValid(claims, token)) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(subject);
                 LOGGER.debug("JWT token is valid");
                 LOGGER.debug("Authorities: {}", userDetails.getAuthorities());
@@ -98,31 +89,36 @@ public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 LOGGER.debug("SecurityContextHolder auth: {}", SecurityContextHolder.getContext().getAuthentication());
             }
-        }catch (ExpiredJwtException e) {
-            LOGGER.debug("Token expired", e);
-        } catch (JwtException e) {
-            LOGGER.debug("Invalid JWT", e);
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            LOGGER.warn("Crypto configuration error", e);
-        }catch (UsernameNotFoundException e){
-            LOGGER.warn("User detail not found error", e);
+        }catch (Exception e) {
+            LOGGER.debug("JWT processing failed", e);
+            SecurityContextHolder.clearContext();
+
+            SecurityContextHolder.clearContext();
+            filterChain.doFilter(request, response);
+            return;
         }
         
         LOGGER.info("End of filter process for path: {}", request.getRequestURI());
         filterChain.doFilter(request, response);
     }
 
+    /**
+     * Checks whether the header is valid or not
+     * @param authenticationHeader String
+     * @return isHeaderNotValid boolean
+     */
     private boolean isHeaderNotValid(String authenticationHeader){
-        return authenticationHeader == null || !authenticationHeader.startsWith(jwtAuthProperties.getBearerPrefix());
+        return authenticationHeader == null || !authenticationHeader.startsWith((BEARER_PREFIX));
     }
 
-    private boolean isTokenValid(String subject, String token) {
-        try{
-            return SecurityContextHolder.getContext().getAuthentication() == null
-                    && jwtService.isTokenValid(token, subject)
-                    && !tokenRevocationService.isTokenRevoked(jwtService.getJti(token));
-        }catch (InvalidKeySpecException | NoSuchAlgorithmException e){
-         return false;
-        }
+    /**
+     * Checks whether the token is valid or not
+     * @param claims Claims
+     * @param token String
+     * @return isTokenValid boolean
+     */
+    private boolean isTokenValid(Claims claims, String token) {
+            return jwtService.isTokenValid(token, claims.getSubject())
+                    && !tokenRevocationService.isTokenRevoked(claims.getId());
     }
 }

@@ -32,11 +32,14 @@ public interface JwtService {
     /**
      * To create jwt token
      * @param username String
+     * @param claims Map of String and Object
+     * @param issuer String
+     * @param audience String
      * @return token String
      * @throws NoSuchAlgorithmException if wrong algorithm is given for token creation
      * @throws InvalidKeySpecException if wrong key is given for token creation
      */
-    String createToken(String username, Map<String, Object> claims) throws NoSuchAlgorithmException, InvalidKeySpecException;
+    String createToken(String username, Map<String, Object> claims, String issuer, String audience) throws NoSuchAlgorithmException, InvalidKeySpecException;
 
     /**
      * Get subject associated with the specified token
@@ -70,5 +73,12 @@ public interface JwtService {
             String subject
     );
 
-    String getJti(String token) throws NoSuchAlgorithmException, InvalidKeySpecException;
+    /**
+     * Getter of all claims for the specified token
+     * @param token String
+     * @return claims Claims
+     * @throws NoSuchAlgorithmException if algorithm is not supported
+     * @throws InvalidKeySpecException  if key is invalid
+     */
+    Claims getAllClaims(String token) throws NoSuchAlgorithmException, InvalidKeySpecException;
 }

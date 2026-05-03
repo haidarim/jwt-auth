@@ -1,21 +1,16 @@
 /*
- * Copyright (c) 2026 haidarim
+ * Copyright (c) 2026 Haidarim
  * All rights reserved.
  *
- * This software is provided for personal, non-commercial use only.
- *
- * Unauthorized copying, modification, redistribution, or use in
- * commercial products or services is strictly prohibited.
- *
- * You may fork and modify this code solely for the purpose of
- * contributing bug fixes or improvements back to the original
- * repository via pull requests.
- *
- * All other uses require explicit written permission from the author.
+ * This software is proprietary and confidential.
+ * Unauthorized use, copying, modification, or distribution of this
+ * software, in whole or in part, is strictly prohibited without
+ * prior written permission from the author.
  */
 
 package io.github.haidarim.impl.service;
 
+import io.github.haidarim.api.JwtAlgorithm;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -29,6 +24,7 @@ import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,15 +33,15 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static io.github.haidarim.api.JwtAlgorithm.HS256;
+import static io.github.haidarim.api.JwtAlgorithm.RSA;
+
 /**
  * DefaultJwtService
  */
 public class DefaultJwtServiceImpl implements JwtService {
     private final Logger LOGGER = LoggerFactory.getLogger(DefaultJwtServiceImpl.class);
     private final JwtConfig jwtConfig;
-
-    private final String HS = "HS";
-    private final String RSA = "RSA";
 
     /**
      * Constructor
@@ -67,10 +63,8 @@ public class DefaultJwtServiceImpl implements JwtService {
     }
 
     @Override
-    public String createToken(String subject, Map<String, Object> claims) throws InvalidKeySpecException, NoSuchAlgorithmException {
-        String jti = UUID.randomUUID().toString();
-        claims.put("jti", jti);
-        return createToken(claims, subject);
+    public String createToken(String subject, Map<String, Object> claims, String issuer, String audience) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        return createToken(claims, subject, issuer, audience);
     }
 
     /**
@@ -81,17 +75,26 @@ public class DefaultJwtServiceImpl implements JwtService {
      * @throws InvalidKeySpecException if key is invalid
      * @throws NoSuchAlgorithmException if algorithm is invalid
      */
-    private String createToken(Map<String, Object> extraClaims, String subject) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    private String createToken(Map<String, Object> extraClaims, String subject, String issuer, String audience) throws InvalidKeySpecException, NoSuchAlgorithmException {
         JwtBuilder jwtBuilder = Jwts
                 .builder()
                 .claims(extraClaims)
+                .id(UUID.randomUUID().toString())
+                .issuer(issuer)
+                .audience().add(audience)
+                .and()
                 .subject(subject);
         if(jwtConfig.isCheckExpiration()){
+            Instant now = Instant.now();
             jwtBuilder
-                    .issuedAt(new Date(System.currentTimeMillis()))
-                    .expiration(new Date(System.currentTimeMillis() + jwtConfig.getExpirationMillis()));
+                    .issuedAt(Date.from(now))
+                    .expiration(Date.from(now.plusMillis(jwtConfig.getExpirationMillis())));
         }
-        jwtBuilder = jwtConfig.getAlgorithm().startsWith(HS) ? jwtBuilder.signWith(getSecretKey()) : jwtBuilder.signWith(getPrivateKey());
+        validateAlgorithm(jwtConfig.getAlgorithm());
+        jwtBuilder = switch (jwtConfig.getAlgorithm()) {
+            case HS256 -> jwtBuilder.signWith(getSecretKey());
+            case RSA -> jwtBuilder.signWith(getPrivateKey());
+        };
         return jwtBuilder.compact();
     }
 
@@ -102,9 +105,14 @@ public class DefaultJwtServiceImpl implements JwtService {
      * @throws NoSuchAlgorithmException if algorithm is invalid
      * @throws InvalidKeySpecException if key is invalid
      */
-    private Claims getAllClaims(String token) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    @Override
+    public Claims getAllClaims(String token) throws NoSuchAlgorithmException, InvalidKeySpecException {
         JwtParserBuilder parser = Jwts.parser();
-        parser = jwtConfig.getAlgorithm().startsWith(HS) ? parser.verifyWith(getSecretKey()) : parser.verifyWith(getPublicKey());
+        validateAlgorithm(jwtConfig.getAlgorithm());
+        parser = switch (jwtConfig.getAlgorithm()){
+            case HS256 -> parser.verifyWith(getSecretKey());
+            case RSA -> parser.verifyWith(getPublicKey());
+        };
         return parser
                 .build()
                 .parseSignedClaims(token)
@@ -129,7 +137,7 @@ public class DefaultJwtServiceImpl implements JwtService {
     private PublicKey getPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
         byte[] key = Decoders.BASE64.decode(jwtConfig.getRsPublicKey());
         X509EncodedKeySpec spec = new X509EncodedKeySpec(key);
-        KeyFactory keyFactory = KeyFactory.getInstance(RSA);
+        KeyFactory keyFactory = KeyFactory.getInstance(RSA.name());
         return keyFactory.generatePublic(spec);
     }
 
@@ -142,21 +150,26 @@ public class DefaultJwtServiceImpl implements JwtService {
     private PrivateKey getPrivateKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
         byte[] key = Decoders.BASE64.decode(jwtConfig.getRsPrivateKey());
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(key);
-        KeyFactory keyFactory = KeyFactory.getInstance(RSA);
+        KeyFactory keyFactory = KeyFactory.getInstance(RSA.name());
         return keyFactory.generatePrivate(spec);
     }
 
     @Override
     public boolean isTokenValid(String token, String providedSubject){
         try {
-            String subject = getSubject(token);
-            return subject.equals(providedSubject) && (!jwtConfig.isCheckExpiration() || isTokenStillValid(token));
+            Claims claims = getAllClaims(token);
+            String subject = claims.getSubject();
+
+            return subject.equals(providedSubject)
+                    && (!jwtConfig.isCheckExpiration() || isTokenStillValid(token))
+                    && jwtConfig.isIssuerValid(claims.getIssuer())
+                    && claims.getAudience().stream().allMatch(jwtConfig::isAudienceValid);
         }catch (ExpiredJwtException e){
             return false;
         }
         catch (Exception e){
             LOGGER.error("Exception during token validation: {}", e.getMessage());
-            throw new RuntimeException(e);
+            return false;
         }
     }
 
@@ -168,11 +181,18 @@ public class DefaultJwtServiceImpl implements JwtService {
      * @throws InvalidKeySpecException if key is invalid
      */
     public boolean isTokenStillValid(String token) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        return getClaim(token, Claims::getExpiration).after(new Date());
+        Instant now = Instant.now();
+        return getClaim(token, Claims::getExpiration).toInstant().isAfter(now.plusSeconds(jwtConfig.getExpirationJwtMargin()));
     }
 
-    @Override
-    public String getJti(String token) throws NoSuchAlgorithmException, InvalidKeySpecException{
-        return getAllClaims(token).get("jti", String.class);
+    /**
+     * Validate given algorithm
+     * @param algorithm JwtAlgorithm
+     * @throws NoSuchAlgorithmException if algorithm is not supported
+     */
+    protected void validateAlgorithm(JwtAlgorithm algorithm) throws NoSuchAlgorithmException {
+        if (!(RSA.equals(algorithm) || HS256.equals(algorithm))){
+            throw new NoSuchAlgorithmException("Unsupported algorithm");
+        }
     }
 }

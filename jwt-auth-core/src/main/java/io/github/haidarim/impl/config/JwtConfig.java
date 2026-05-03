@@ -1,32 +1,35 @@
 /*
- * Copyright (c) 2026 haidarim
+ * Copyright (c) 2026 Haidarim
  * All rights reserved.
  *
- * This software is provided for personal, non-commercial use only.
- *
- * Unauthorized copying, modification, redistribution, or use in
- * commercial products or services is strictly prohibited.
- *
- * You may fork and modify this code solely for the purpose of
- * contributing bug fixes or improvements back to the original
- * repository via pull requests.
- *
- * All other uses require explicit written permission from the author.
+ * This software is proprietary and confidential.
+ * Unauthorized use, copying, modification, or distribution of this
+ * software, in whole or in part, is strictly prohibited without
+ * prior written permission from the author.
  */
 
 package io.github.haidarim.impl.config;
+
+import io.github.haidarim.api.JwtAlgorithm;
+
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * JwtConfig
  */
 public final class JwtConfig {
 
-    private String algorithm;
+    private JwtAlgorithm algorithm;
     private String hsSecret;
     private String rsPrivateKey;
     private String rsPublicKey;
     private boolean checkExpiration;
     private long expirationMillis;
+    private long expirationJwtMargin;
+    private Set<String> allowedIssuers = new HashSet<>();
+    private Set<String> allowedAudiences = new HashSet<>();
 
     /**
      * Constructor
@@ -38,12 +41,13 @@ public final class JwtConfig {
      * @param expirationMillis long
      */
     public JwtConfig(
-            String algorithm,
+            JwtAlgorithm algorithm,
             String hsSecret,
             String rsPrivateKey,
             String rsPublicKey,
             boolean checkExpiration,
-            long expirationMillis
+            long expirationMillis,
+            long expirationJwtMargin
     ) {
         this.algorithm = algorithm;
         this.hsSecret = hsSecret;
@@ -51,13 +55,14 @@ public final class JwtConfig {
         this.rsPublicKey = rsPublicKey;
         this.checkExpiration = checkExpiration;
         this.expirationMillis = expirationMillis;
+        this.expirationJwtMargin = expirationJwtMargin;
     }
 
     /**
      * Getter method
      * @return algorithm String
      */
-    public String getAlgorithm() {
+    public JwtAlgorithm getAlgorithm() {
         return algorithm;
     }
 
@@ -105,12 +110,8 @@ public final class JwtConfig {
      * Setter method
      * @param algorithm String
      */
-    public void setAlgorithm(String algorithm){
-        if("HS256".equals(algorithm) || "RSA".equals(algorithm)){
-            this.algorithm = algorithm;
-            return;
-        }
-        throw new RuntimeException("Invalid algorithm");
+    public void setAlgorithm(JwtAlgorithm algorithm){
+        this.algorithm = Objects.requireNonNull(algorithm);
     }
 
     /**
@@ -127,5 +128,55 @@ public final class JwtConfig {
      */
     public void setExpirationMillis(long expirationMillis){
         this.expirationMillis = expirationMillis;
+    }
+
+    /**
+     * Get expiration margin
+     * @return margin long
+     */
+    public long getExpirationJwtMargin(){
+        return expirationJwtMargin;
+    }
+
+    /**
+     * Setter for expirationJwtMargin
+     * @param expirationJwtMargin long
+     */
+    public void setExpirationJwtMargin(long expirationJwtMargin){
+        this.expirationJwtMargin = expirationJwtMargin;
+    }
+
+    /**
+     * Add issuer to allowedIssuers
+     * @param issuer String
+     */
+    public void addIssuer(String issuer){
+        this.allowedIssuers.add(issuer);
+    }
+
+    /**
+     * Add audience ti allowedAudiences
+     * @param audience String
+     */
+    public void addAudience(String audience){
+        this.allowedAudiences.add(audience);
+    }
+
+    /**
+     * Checks whether the issuer is valid
+     * @param issuer String
+     * @return isIssuerValid boolean
+     */
+    public boolean isIssuerValid(String issuer){
+        return allowedIssuers.contains(issuer);
+    }
+
+    /**
+     * Checks whether the audience is valid
+     * @param audience String
+     * @return isAudienceValid boolean
+     */
+    public boolean isAudienceValid(String audience){
+        return allowedAudiences.contains(audience);
     }
 }

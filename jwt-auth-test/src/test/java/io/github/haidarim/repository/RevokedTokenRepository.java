@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2026 Haidarim
+ * All rights reserved.
+ *
+ * This software is proprietary and confidential.
+ * Unauthorized use, copying, modification, or distribution of this
+ * software, in whole or in part, is strictly prohibited without
+ * prior written permission from the author.
+ */
+
 package io.github.haidarim.repository;
 
 import io.github.haidarim.entity.RevokedToken;
@@ -5,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 public interface RevokedTokenRepository extends JpaRepository<@NotNull RevokedToken, @NotNull Long> {
 

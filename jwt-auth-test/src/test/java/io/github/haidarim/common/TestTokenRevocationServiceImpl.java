@@ -1,11 +1,20 @@
+/*
+ * Copyright (c) 2026 Haidarim
+ * All rights reserved.
+ *
+ * This software is proprietary and confidential.
+ * Unauthorized use, copying, modification, or distribution of this
+ * software, in whole or in part, is strictly prohibited without
+ * prior written permission from the author.
+ */
+
 package io.github.haidarim.common;
 
-import io.github.haidarim.api.service.JwtService;
+
 import io.github.haidarim.api.service.TokenRevocationService;
 import io.github.haidarim.entity.RevokedToken;
 import io.github.haidarim.repository.RevokedTokenRepository;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

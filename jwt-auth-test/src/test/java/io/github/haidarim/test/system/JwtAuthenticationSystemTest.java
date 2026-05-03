@@ -1,17 +1,11 @@
 /*
- * Copyright (c) 2026 haidarim
+ * Copyright (c) 2026 Haidarim
  * All rights reserved.
  *
- * This software is provided for personal, non-commercial use only.
- *
- * Unauthorized copying, modification, redistribution, or use in
- * commercial products or services is strictly prohibited.
- *
- * You may fork and modify this code solely for the purpose of
- * contributing bug fixes or improvements back to the original
- * repository via pull requests.
- *
- * All other uses require explicit written permission from the author.
+ * This software is proprietary and confidential.
+ * Unauthorized use, copying, modification, or distribution of this
+ * software, in whole or in part, is strictly prohibited without
+ * prior written permission from the author.
  */
 
 package io.github.haidarim.test.system;
@@ -25,21 +19,14 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
 
+import static io.github.haidarim.common.TestConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class JwtAuthenticationSystemTest extends AbstractJwtTest {
-    private final String USERNAME_1 = "u1";
-    private final String USERNAME_2 = "u2";
-    private final String EMAIL_1 = "user1@example.com";
-    private final String EMAIL_2 = "user2@example.com";
-    private final String PASSWORD_1 = "pass1";
-    private final String PASSWORD_2 = "pass2";
-    private final String UNIQUE_NUM_1 = "1001";
-    private final String UNIQUE_NUM_2 = "1002";
 
     @Test
     public void registerUserSuccessfullyTest(){
-        String token = assertRegisterRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
+        String token = assertRegisterRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1, VALID_ISSUER, VALID_AUDIENCE);
         assertTrue(token != null && !token.trim().isEmpty());
 
         testHelper.assertUserExistence(true, EMAIL_1);
@@ -59,7 +46,7 @@ public class JwtAuthenticationSystemTest extends AbstractJwtTest {
         webTestClient.post()
                 .uri("/api/v0/auth/authenticate")
                 .bodyValue(new RegisterRequest(
-                        USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1
+                        USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1, VALID_ISSUER, VALID_AUDIENCE
                 ))
                 .exchange()
                 .expectStatus()
@@ -68,7 +55,7 @@ public class JwtAuthenticationSystemTest extends AbstractJwtTest {
 
     @Test
     public void registeredUserWithValidJwtShouldAccessProtectedResourceTest(){
-        String token = assertRegisterRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
+        String token = assertRegisterRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1, VALID_ISSUER, VALID_AUDIENCE);
         String responseMessage = webTestClient.get()
                 .uri("/api/v0/auth/get/hello-message")
                 .header("Authorization", "Bearer " + token)
@@ -84,14 +71,14 @@ public class JwtAuthenticationSystemTest extends AbstractJwtTest {
 
     @Test
     public void deletedUserWithValidJwtAccessProtectedResourceFailsTest(){
-        String token = assertRegisterRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
+        String token = assertRegisterRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1, VALID_ISSUER, VALID_AUDIENCE);
 
         testHelper.removeTestUser(EMAIL_1);
 
         webTestClient.post()
                 .uri("/api/v0/auth/authenticate")
                 .bodyValue(new RegisterRequest(
-                        USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1
+                        USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1, VALID_ISSUER, VALID_AUDIENCE
                 ))
                 .exchange()
                 .expectStatus()
@@ -109,7 +96,7 @@ public class JwtAuthenticationSystemTest extends AbstractJwtTest {
     public void registeredUserWithExpiredJwtAccessProtectedResourceFailsTest(){
         testHelper.setJwtTimeoutMillis(3_000L);
 
-        String token = assertRegisterRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
+        String token = assertRegisterRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1, VALID_ISSUER, VALID_AUDIENCE);
 
         // Assert: token works initially
         webTestClient.get()
@@ -142,7 +129,7 @@ public class JwtAuthenticationSystemTest extends AbstractJwtTest {
     public void registeredUserRequestsNewJwtSuccessfullyTest() {
         testHelper.createTestUser(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
 
-        String token = assertAuthenticationRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
+        String token = assertAuthenticationRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1, VALID_ISSUER, VALID_AUDIENCE);
 
         webTestClient.get()
                 .uri("/api/v0/auth/get/hello-message")
@@ -157,9 +144,9 @@ public class JwtAuthenticationSystemTest extends AbstractJwtTest {
 
     @Test
     public void userJwtShouldBeUniqueTest(){
-        String tokenUser1 = assertRegisterRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
+        String tokenUser1 = assertRegisterRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1, VALID_ISSUER, VALID_AUDIENCE);
 
-        String tokenUser2 = assertRegisterRequestAndGetToken(USERNAME_2, EMAIL_2, PASSWORD_2, UNIQUE_NUM_2);
+        String tokenUser2 = assertRegisterRequestAndGetToken(USERNAME_2, EMAIL_2, PASSWORD_2, UNIQUE_NUM_2, VALID_ISSUER, VALID_AUDIENCE);
 
         assertNotEquals(tokenUser1, tokenUser2);
     }
@@ -167,14 +154,14 @@ public class JwtAuthenticationSystemTest extends AbstractJwtTest {
     @Test
     public void userShouldBeAbleToGetJwtUsingAllowedCredentialFormsTest(){
         testHelper.createTestUser(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
-        assertAuthenticationRequestAndGetToken(null, null, PASSWORD_1, UNIQUE_NUM_1);
-        assertAuthenticationRequestAndGetToken(null, EMAIL_1, PASSWORD_1, null);
-        assertAuthenticationRequestAndGetToken(USERNAME_1, null, PASSWORD_1, null);
+        assertAuthenticationRequestAndGetToken(null, null, PASSWORD_1, UNIQUE_NUM_1, VALID_ISSUER, VALID_AUDIENCE);
+        assertAuthenticationRequestAndGetToken(null, EMAIL_1, PASSWORD_1, null, VALID_ISSUER, VALID_AUDIENCE);
+        assertAuthenticationRequestAndGetToken(USERNAME_1, null, PASSWORD_1, null, VALID_ISSUER, VALID_AUDIENCE);
     }
 
     @Test
     public void tokenShouldBeRevokedAfterLogoutTest() throws NoSuchAlgorithmException, InvalidKeySpecException {
-        String token= assertRegisterRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1);
+        String token= assertRegisterRequestAndGetToken(USERNAME_1, EMAIL_1, PASSWORD_1, UNIQUE_NUM_1, VALID_ISSUER, VALID_AUDIENCE);
         webTestClient
                 .post()
                 .uri("/api/v0/auth/logout")
@@ -188,14 +175,14 @@ public class JwtAuthenticationSystemTest extends AbstractJwtTest {
                 .exchange()
                 .expectStatus().isUnauthorized();
         String jti = testHelper.getJti(token);
-        assertTrue(tokenRevocationService.isTokenRevoked(jti));
+        assertTrue(testHelper.isTokenRevoked(jti));
     }
 
-    private String assertRegisterRequestAndGetToken(String username, String email, String password, String uniqueNumber){
+    private String assertRegisterRequestAndGetToken(String username, String email, String password, String uniqueNumber, String issuer, String audience){
         AuthenticationResponse response = webTestClient.post()
                 .uri("/api/v0/auth/register")
                 .bodyValue(new RegisterRequest(
-                        username, email, password, uniqueNumber
+                        username, email, password, uniqueNumber, issuer, audience
                 ))
                 .exchange()
                 .expectStatus()
@@ -206,11 +193,11 @@ public class JwtAuthenticationSystemTest extends AbstractJwtTest {
         return response.getToken();
     }
 
-    private String assertAuthenticationRequestAndGetToken(String username, String email, String password, String uniqueNumber){
+    private String assertAuthenticationRequestAndGetToken(String username, String email, String password, String uniqueNumber, String issuer, String audience){
         AuthenticationResponse response = webTestClient.post()
                 .uri("/api/v0/auth/authenticate")
                 .bodyValue(new RegisterRequest(
-                        username, email, password, uniqueNumber
+                        username, email, password, uniqueNumber, issuer, audience
                 ))
                 .exchange()
                 .expectStatus()

@@ -1,17 +1,11 @@
 /*
- * Copyright (c) 2026 haidarim
+ * Copyright (c) 2026 Haidarim
  * All rights reserved.
  *
- * This software is provided for personal, non-commercial use only.
- *
- * Unauthorized copying, modification, redistribution, or use in
- * commercial products or services is strictly prohibited.
- *
- * You may fork and modify this code solely for the purpose of
- * contributing bug fixes or improvements back to the original
- * repository via pull requests.
- *
- * All other uses require explicit written permission from the author.
+ * This software is proprietary and confidential.
+ * Unauthorized use, copying, modification, or distribution of this
+ * software, in whole or in part, is strictly prohibited without
+ * prior written permission from the author.
  */
 
 package io.github.haidarim.controller;
@@ -36,11 +30,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Objects;
 
+import static io.github.haidarim.api.JwtAuthProperties.AUTHORIZATION_HEADER;
+import static io.github.haidarim.api.JwtAuthProperties.BEARER_PREFIX;
+
 @RestController
 @RequestMapping("/api/v0/auth")
 @RequiredArgsConstructor
 public class TestAuthenticationController {
-    private final String AUTHORIZATION_HEADER = "Authorization";
     private final JwtAuthenticationService authenticationService;
     private final JwtService jwtService;
     private final TestUserService userService;
@@ -79,7 +75,7 @@ public class TestAuthenticationController {
     public ResponseEntity<@NotNull String> logOut(HttpServletRequest request){
         String authHeader = request.getHeader(AUTHORIZATION_HEADER);
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
             return ResponseEntity.badRequest().body("Missing token");
         }
         try {

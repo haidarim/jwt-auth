@@ -1,21 +1,16 @@
 /*
- * Copyright (c) 2026 haidarim
+ * Copyright (c) 2026 Haidarim
  * All rights reserved.
  *
- * This software is provided for personal, non-commercial use only.
- *
- * Unauthorized copying, modification, redistribution, or use in
- * commercial products or services is strictly prohibited.
- *
- * You may fork and modify this code solely for the purpose of
- * contributing bug fixes or improvements back to the original
- * repository via pull requests.
- *
- * All other uses require explicit written permission from the author.
+ * This software is proprietary and confidential.
+ * Unauthorized use, copying, modification, or distribution of this
+ * software, in whole or in part, is strictly prohibited without
+ * prior written permission from the author.
  */
 
 package io.github.haidarim.common;
 
+import io.github.haidarim.api.JwtAlgorithm;
 import io.github.haidarim.api.Role;
 import io.github.haidarim.api.dto.request.AuthenticationRequest;
 import io.github.haidarim.api.dto.request.RegisterRequest;
@@ -29,11 +24,9 @@ import io.github.haidarim.repository.TestUserRepository;
 import io.github.haidarim.service.TestUserService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -43,8 +36,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
+
+import static io.github.haidarim.common.TestConstants.VALID_AUDIENCE;
+import static io.github.haidarim.common.TestConstants.VALID_ISSUER;
 
 @RequiredArgsConstructor
 @TestConfiguration(proxyBeanMethods = false)
@@ -61,7 +56,7 @@ public class TestAppConfig {
     }
 
     @Bean
-    public JwtAuthenticationService jwtAuthenticationService(JwtService jwtService, AuthenticationManager authenticationManager){
+    public JwtAuthenticationService jwtAuthenticationService(JwtConfig jwtConfig, JwtService jwtService, AuthenticationManager authenticationManager){
         return new JwtAuthenticationService() {
             @Override
             public AuthenticationResponse authenticate(AuthenticationRequest request) throws Exception{
@@ -72,6 +67,9 @@ public class TestAppConfig {
                 if (email.isEmpty()){
                     throw new RuntimeException("Email not provided");
                 }
+                if(!jwtConfig.isIssuerValid(request.getIssuer()) || !jwtConfig.isAudienceValid(request.getAudience())){
+                    throw new RuntimeException("Email not provided");
+                }
                 authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(
                                 email,
@@ -80,7 +78,7 @@ public class TestAppConfig {
                 );
 
                 Optional<TestUser> user = userRepository.findByEmail(email);
-                String token = jwtService.createToken(user.get().getEmail(), new HashMap<>());
+                String token = jwtService.createToken(user.get().getEmail(), new HashMap<>(), request.getIssuer(), request.getAudience());
                 return AuthenticationResponse
                         .builder()
                         .token(token)
@@ -90,7 +88,10 @@ public class TestAppConfig {
             @Override
             public AuthenticationResponse register(RegisterRequest request) throws Exception {
                 Optional<TestUser> user = userRepository.findByEmail(request.getEmail());
-                String token = jwtService.createToken(user.get().getEmail(), new HashMap<>());
+                if(!jwtConfig.isIssuerValid(request.getIssuer()) || !jwtConfig.isAudienceValid(request.getAudience())){
+                    throw new RuntimeException("Email not provided");
+                }
+                String token = jwtService.createToken(user.get().getEmail(), new HashMap<>(), request.getIssuer(), request.getAudience());
                 return AuthenticationResponse
                         .builder()
                         .token(token)
@@ -100,7 +101,7 @@ public class TestAppConfig {
             @Override
             public void revokeToken(String token) throws NoSuchAlgorithmException, InvalidKeySpecException {
 
-                String jti = jwtService.getJti(token);
+                String jti = jwtService.getClaim(token, Claims::getId);
                 long exp = jwtService.getClaim(token, Claims::getExpiration).getTime();
 
                 tokenRevocationService.revokeToken(jti, exp);
@@ -134,23 +135,30 @@ public class TestAppConfig {
         };
     }
 
+    // JwtBecame a bean now from POJO
     @Bean
     public JwtConfig jwtConfig(
-            @Value("${jwt.algorithm}") String algorithm,
+            @Value("${jwt.algorithm}") JwtAlgorithm algorithm,
             @Value("${jwt.hs_secret}") String hsSecret,
             @Value("${jwt.pr_secret}") String privateKey,
             @Value("${jwt.pub_secret}") String publicKey,
             @Value("${jwt.check_expiration}") boolean checkExpiration,
-            @Value("${jwt.expiration_time}") long expirationMillis
+            @Value("${jwt.expiration_time}") long expirationMillis,
+            @Value("${jwt.expiration_jwt_margin}") long expirationJwtMargin
     ) {
-        return new JwtConfig(
+        JwtConfig jwtConfig = new JwtConfig(
                 algorithm,
                 hsSecret,
                 privateKey,
                 publicKey,
                 checkExpiration,
-                expirationMillis
+                expirationMillis,
+                expirationJwtMargin
         );
+
+        jwtConfig.addIssuer(VALID_ISSUER);
+        jwtConfig.addAudience(VALID_AUDIENCE);
+        return jwtConfig;
     }
 
     @Bean

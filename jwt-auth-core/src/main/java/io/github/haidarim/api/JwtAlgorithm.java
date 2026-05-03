@@ -8,7 +8,12 @@
  * prior written permission from the author.
  */
 
+package io.github.haidarim.api;
+
 /**
- * Response Dto for JWT
+ * JwtAlgorithm enum
  */
-package io.github.haidarim.api.dto.response;
+public enum JwtAlgorithm {
+    HS256,
+    RSA
+}

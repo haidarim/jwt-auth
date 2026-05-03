@@ -1,27 +1,18 @@
 /*
- * Copyright (c) 2026 haidarim
+ * Copyright (c) 2026 Haidarim
  * All rights reserved.
  *
- * This software is provided for personal, non-commercial use only.
- *
- * Unauthorized copying, modification, redistribution, or use in
- * commercial products or services is strictly prohibited.
- *
- * You may fork and modify this code solely for the purpose of
- * contributing bug fixes or improvements back to the original
- * repository via pull requests.
- *
- * All other uses require explicit written permission from the author.
+ * This software is proprietary and confidential.
+ * Unauthorized use, copying, modification, or distribution of this
+ * software, in whole or in part, is strictly prohibited without
+ * prior written permission from the author.
  */
 
 package io.github.haidarim.config;
 
-import io.github.haidarim.impl.DefaultJwtAuthenticationFilter;
-import io.github.haidarim.properties.JwtAuthProperties;
+import io.github.haidarim.filter.DefaultJwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -32,7 +23,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import static io.github.haidarim.api.JwtAuthProperties.WHITE_LIST;
 
 /**
  * DefaultSecurityConfiguration
@@ -45,7 +37,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class DefaultSecurityConfiguration {
     private final AuthenticationProvider authenticationProvider;
     private final DefaultJwtAuthenticationFilter jwtAuthenticationFilter;
-    private final JwtAuthProperties jwtProperties;
 
     /**
      * default {@link SecurityFilterChain}
@@ -60,7 +51,7 @@ public class DefaultSecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         auth -> auth
-                                .requestMatchers(jwtProperties.getWhiteList())
+                                .requestMatchers(WHITE_LIST)
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated()
@@ -76,8 +67,8 @@ public class DefaultSecurityConfiguration {
                         )
                 )
                 .authenticationProvider(authenticationProvider)
-                // execute JwtFilter before user pass check
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                // execute JwtFilter after user pass check
+                .addFilterAfter(jwtAuthenticationFilter, org.springframework.security.web.access.ExceptionTranslationFilter.class);
         return  http.build();
     }
 }
