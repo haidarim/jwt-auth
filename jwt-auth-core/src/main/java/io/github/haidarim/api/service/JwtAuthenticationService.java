@@ -19,7 +19,6 @@ package io.github.haidarim.api.service;
 import io.github.haidarim.api.dto.request.AuthenticationRequest;
 import io.github.haidarim.api.dto.request.RegisterRequest;
 import io.github.haidarim.api.dto.response.AuthenticationResponse;
-import org.springframework.http.ResponseEntity;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
