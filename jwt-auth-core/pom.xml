@@ -5,30 +5,14 @@
     <parent>
         <groupId>io.github.haidarim</groupId>
         <artifactId>orelese-jwt</artifactId>
-        <version>2.0.0</version>
+        <version>2.0.1</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>jwt-auth-core</artifactId>
     <name>JWT Auth Core</name>
     <description>Core JWT authentication Core</description>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+
     <dependencies>
         <!--
         ::: JWT Dependencies
