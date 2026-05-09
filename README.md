@@ -20,8 +20,6 @@ For RSA algorithm, token signed with private key during token creation, and the 
 We first verify the token using the key. If it is valid, we decode it and extract the subject. Then we optionally check if that subject corresponds to a valid user in our system.
 The token is validated using the key which will either return a subject or null. then we check if the subject exists then we check whether the token is valid. 
 
-`getSubject()` triggers full token parsing, which internally verifies the signature using the key, and only then extracts and returns the subject from the validated claims.
-
 ![RequestToProtectedPath](./src/main/resources/img/requestToProtectedPath.png)
 
 Validation flow: 
@@ -43,17 +41,8 @@ Also, the blacked list should be cleaned, either
 - A token expires
 - Scheduled clean up. 
 
-This implementation: 
-- Uses a database table, but the service is open and can use even other options. 
-- Has a scheduled cleanup job (the duration is defined in JwtConfig) 
-which clean the entries that those tokens are expired.  
-- Tokens are not stored directly in the DB, rather JTI
+This test implementation uses a database table, but the service is open and can use even other options. 
 
-
-### Key regeneration and kid after scheduled job is triggered 
-
-A table will keep tracking of last time the key was regenerated, after this all entries in the revokes token that has
-last_time_used  < last_time_key_regen be deleted from revoke entity. 
 
 ### Class diagram
 

@@ -97,7 +97,7 @@ public class DefaultJwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        
+
         LOGGER.info("End of filter process for path: {}", request.getRequestURI());
         filterChain.doFilter(request, response);
     }
