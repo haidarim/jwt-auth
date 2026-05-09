@@ -2,6 +2,10 @@ name: RELEASE CI
 
 on:
   workflow_dispatch:
+
+permissions:
+  contents: write
+  
 jobs: 
   RELEASE: 
     uses: haidarim/ci-templates/.github/workflows/java-release.yml@v1.1.10
